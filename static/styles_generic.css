@@ -1,0 +1,142 @@
+/* static/styles_generic.css */
+/* Generic CSS variables and resets */
+:root {
+  --1-color: #ba1010;
+  --2-color: #8c0000;
+  --3-color: #1A374D;
+  --4-color: #004B49;
+  --5-color: #074b60;
+  --gold-color: #ffcc00;
+  --bg-color: #FFFFF0;
+  --panel-width: 320px;
+  --titlebar-height: 40px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color);
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 999;
+}
+
+.light {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  border-radius: 90%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+h1 {
+  color: var(--2-color);
+  font-family: 'Georgia', serif;
+  font-size: 28px;
+  text-align: center;
+  margin: 15px 0;
+  font-variant: small-caps;
+  letter-spacing: 1px;
+}
+
+h3, h4 {
+  color: var(--gold-color);
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  text-align: center;
+}
+
+h4 {
+  text-align: left;
+}
+
+label {
+  position: relative;
+  font-family: serif;
+  letter-spacing: 1px;
+  color: var(--3-color);
+  font-weight: normal;
+  text-align: right;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  justify-self: start;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.status-Signed {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.status-Not-Signed {
+  color: #c0392b;
+  font-weight: bold;
+}
+
+.status-In-Doubt {
+  color: #f39c12;
+  font-weight: bold;
+}
+
+.status-Error {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.output-link {
+  color: var(--gold-color);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.output-link:hover {
+  text-decoration: none;
+  color: greenyellow;
+}

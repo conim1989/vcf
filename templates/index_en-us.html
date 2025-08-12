@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ window_title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container { height: 100%; display: flex; flex-direction: column; }
+        #main-content-area { overflow-y: auto; flex-grow: 1; padding-right: 15px;  --fade-amount: 8%; -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent); mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent); }
+        #log-area { flex-shrink: 0; }
+        #duplicate-selection { padding: 20px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; }
+        #duplicates-list { max-height: 300px; flex-grow: 1; margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; }
+        .duplicate-item { display: flex; align-items: center; gap: 10px; padding: 5px; border-bottom: 1px solid #eee; }
+        #title-manager { margin-top: 20px; }
+        #filtered-titles-list { list-style: none; padding: 0; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 10px; }
+        #filtered-titles-list li { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border-bottom: 1px solid #eee; }
+        .delete-title-btn { cursor: pointer; color: red; font-weight: bold; border: none; background: none; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div class="titlebar" id="titlebar">
+        <span class="titlebar-text">{{ window_title }}</span>
+        <div class="window-controls">
+            <button class="window-btn minimize" id="minimize-btn" title="Minimize">–</button>
+            <button class="window-btn" id="close-btn" title="Close">×</button>
+        </div>
+    </div>
+    <div class="main-wrapper">
+        <div class="container" id="vcf-container">
+        <h1>{{ window_title }}</h1>
+        <div id="duplicate-selection-1" style="display: none;">These contacts are already in the log. Select which ones you want to re-process.</label> </div>
+            <div id="main-content-area">
+                <div id="initial-form">
+                    <div class="input-field">
+                        <label for="vcf-path">VCF File:</label>
+                        <div style="display: contents;">
+                            <input type="text" id="vcf-path" class="input-style" value="{{ vcf_path }}" placeholder="Select a VCF file to process...">
+                            <div class="button-container"><button type="button" id="browse-vcf-btn" class="button file-label">Browse</button></div>
+                        </div>
+                    </div>
+                    <div class="button-container"><button type="button" id="start-btn" class="button">Process VCF</button></div>
+                </div>
+                <div id="duplicate-selection-2" style="display: none;">
+                    
+                    
+                    <form id="duplicates-form">
+                        <div id="duplicates-list"></div>           
+                    </form>
+                </div>
+            </div>
+        <div id="duplicate-selection-3" style="display: none;">
+            <div class="button-row">       
+            <div class="button-container"><button id="submit-button" class="button">Process Selected</button>
+            </div>
+            <div class="button-container"><button type="button" id="select-all-btn" class="button">Select All</button></div>
+                        <div class="button-container"><button type="button" id="select-none-btn" class="button">Select None</button></div>
+                        </div>
+            </div>
+            <div id="log-area" style="display: none; height: 150px;"></div>
+            <div class="advanced-toggle"><a href="#" id="advanced-toggle-link">Settings</a></div>
+        </div>
+        <div id="advanced-panel">
+            <div id="advanced-panel-content" class="advanced-panel">
+                <h3 class="h3">Settings</h3>
+                <div id="title-manager">
+                    <h4 class="h4">Filtered Titles</h4>
+                    <p style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Words in this list will be removed from names.</p>
+                    <ul id="filtered-titles-list" style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;"></ul>
+                    <div class="input-field-adv">
+                        <input type="text" id="new-title-input" placeholder="Add a title to filter..." class="input-style-adv">
+                        <div class="button-container-adv"><button type="button" id="add-title-btn" class="button-adv">+</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- Global State & Element References ---
+    const vcfPathInput = document.getElementById('vcf-path');
+    const startBtn = document.getElementById('start-btn');
+    const logArea = document.getElementById('log-area');
+    const initialForm = document.getElementById('initial-form');
+    const duplicateSelectionDiv1 = document.getElementById('duplicate-selection-1');
+    const duplicateSelectionDiv2 = document.getElementById('duplicate-selection-2');
+    const duplicateSelectionDiv3 = document.getElementById('duplicate-selection-3');
+    const duplicatesForm = document.getElementById('duplicates-form');
+    const duplicatesList = document.getElementById('duplicates-list');
+    const titlesList = document.getElementById('filtered-titles-list');
+    const newTitleInput = document.getElementById('new-title-input');
+    const addTitleBtn = document.getElementById('add-title-btn');
+
+    // --- Helper Functions (defined at top level) ---
+    function logMessage(message) {
+        logArea.style.display = 'block';
+        const timestamp = new Date().toLocaleTimeString();
+        logArea.innerHTML += `[${timestamp}] ${message}<br>`;
+        logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    async function fetchAndDisplayTitles() {
+        try {
+            const response = await fetch('/get_titles');
+            const data = await response.json();
+            titlesList.innerHTML = '';
+            data.titles.forEach(title => {
+                const li = document.createElement('li');
+                li.textContent = title;
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '×';
+                deleteBtn.className = 'delete-title-btn';
+                li.appendChild(deleteBtn);
+                titlesList.appendChild(li);
+            });
+        } catch (e) { console.error("Failed to fetch titles:", e); }
+    }
+
+    async function saveTitles() {
+        const currentTitles = Array.from(titlesList.children).map(li => li.firstChild.textContent);
+        await fetch('/save_titles', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ titles: currentTitles })
+        });
+        logMessage("Filtered titles list updated.");
+    }
+
+    async function continueProcessing(selected_duplicates) {
+        logMessage(`Continuing with ${selected_duplicates.length} selected duplicates...`);
+        duplicateSelectionDiv1.style.display = 'none';
+        duplicateSelectionDiv2.style.display = 'none';
+        duplicateSelectionDiv3.style.display = 'none';
+        const response = await fetch('/reprocess_selected', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ selected_to_reprocess: selected_duplicates })
+        });
+        const data = await response.json();
+        if (data.error) { logMessage(`Error: ${data.error}`); } 
+        else { if (data.output_file && data.output_file !== "None") {
+                logMessage(`<strong>${data.message}</strong> Output file: <a href="#" class="output-link" data-path="${data.output_file}">${data.output_file}</a>`);
+            } else {
+                logMessage(`<strong>${data.message}</strong> No output file was created.`);
+            }
+        }
+        initialForm.style.display = 'block';
+        startBtn.style.display = 'block';
+    }
+    
+
+    function showDuplicateSelector(duplicates) {
+        logMessage(`Found ${duplicates.length} duplicates. Please make your selection.`);
+        duplicatesList.innerHTML = '';
+        duplicates.forEach((contact, index) => {
+            const div = document.createElement('div');
+            div.className = 'duplicate-item';
+            div.innerHTML = `<input type="checkbox" id="dup-${index}" name="selected_duplicates" value='${JSON.stringify(contact)}'><label for="dup-${index}">${contact.original_name} (${contact.cleaned_number})</label>`;
+            duplicatesList.appendChild(div);
+        });
+        initialForm.style.display = 'none';
+        startBtn.style.display = 'none';
+        duplicateSelectionDiv1.style.display = 'block';
+        duplicateSelectionDiv2.style.display = 'block';
+        duplicateSelectionDiv3.style.display = 'block';
+    }
+
+    // --- Main Initializer ---
+    window.addEventListener('pywebviewready', () => {
+        // Attach all event listeners once the DOM and pywebview are ready
+        fetchAndDisplayTitles();
+
+        addTitleBtn.addEventListener('click', () => {
+            const newTitle = newTitleInput.value.trim();
+            if (newTitle) {
+                const li = document.createElement('li');
+                li.textContent = newTitle;
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '×';
+                deleteBtn.className = 'delete-title-btn';
+                li.appendChild(deleteBtn);
+                titlesList.appendChild(li);
+                newTitleInput.value = '';
+                saveTitles();
+            }
+        });
+
+        titlesList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-title-btn')) {
+                e.target.parentElement.remove();
+                saveTitles();
+            }
+        });
+
+        document.getElementById('browse-vcf-btn').addEventListener('click', async () => {
+            const path = await window.pywebview.api.select_file();
+            if (path && path.length > 0) vcfPathInput.value = path[0];
+        });
+
+        document.getElementById('select-all-btn').addEventListener('click', () => {
+            document.querySelectorAll('#duplicates-list input[type="checkbox"]').forEach(cb => cb.checked = true);
+        });
+        document.getElementById('select-none-btn').addEventListener('click', () => {
+            document.querySelectorAll('#duplicates-list input[type="checkbox"]').forEach(cb => cb.checked = false);
+        });
+
+        startBtn.addEventListener('click', async () => {
+            if (!vcfPathInput.value) { logMessage("Error: Please select a VCF file first."); return; }
+            logMessage("Starting processing... Finding duplicates...");
+            startBtn.style.display = 'none';
+            const response = await fetch('/start_vcf_processing', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vcf_path: vcfPathInput.value })
+            });
+            const data = await response.json();
+            if (data.error) { logMessage(`Error: ${data.error}`); startBtn.style.display = 'block'; return; }
+            if (data.duplicates && data.duplicates.length > 0) {
+                showDuplicateSelector(data.duplicates);
+            } else {
+                logMessage("No duplicates found. Processing all unique contacts...");
+                await continueProcessing([]);
+            }
+        });
+
+        logArea.addEventListener('click', (e) => {
+            if (e.target.classList.contains('output-link')) {
+                e.preventDefault();
+                const filePath = e.target.dataset.path;
+                // Call the new Python API function to open the file
+                window.pywebview.api.open_file_path(filePath);
+                console.log(`Opening file: ${filePath}`);
+            }
+        });
+
+                // --- THIS IS THE FIX ---
+        // 1. Find the actual button inside the div.
+        const processSelectedBtn = document.querySelector('#submit-button');
+        // 2. Attach a 'click' listener to this normal button.
+        processSelectedBtn.addEventListener('click', async (e) => {
+            e.preventDefault(); // Prevent any default behavior
+            // 3. Manually find all checked boxes inside the list and process them.
+            const selected_to_reprocess = Array.from(document.querySelectorAll('#duplicates-list input[name="selected_duplicates"]:checked'))
+                .map(cb => JSON.parse(cb.value));
+            await continueProcessing(selected_to_reprocess);
+        });
+
+        document.getElementById('advanced-toggle-link').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('advanced-panel').classList.toggle('visible'); });
+        document.getElementById('close-btn').addEventListener('click', () => window.pywebview.api.close_window());
+        document.getElementById('minimize-btn').addEventListener('click', () => window.pywebview.api.minimize_window());
+        document.getElementById('titlebar').addEventListener('mousedown', (e) => {
+            if (e.button !== 0 || e.target.closest('.window-controls')) return;
+            e.preventDefault();
+            const dragOffsetX = e.screenX - window.screenX;
+            const dragOffsetY = e.screenY - window.screenY;
+            const onMouseMove = (ev) => window.pywebview.api.set_window_position(ev.screenX - dragOffsetX, ev.screenY - dragOffsetY);
+            const onMouseUp = () => { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); };
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+         // Click outside to close advanced panel
+        document.addEventListener('mousedown', (e) => {
+            const panel = document.getElementById('advanced-panel');
+            const toggle = document.getElementById('advanced-toggle-link');
+            if (panel.classList.contains('visible') && !panel.contains(e.target) && !toggle.contains(e.target)) {
+                panel.classList.remove('visible');
+            }
+        });
+
+        // Corrected Auto-Start Logic
+        const initialDuplicatesData = JSON.parse('{{ initial_duplicates | safe }}');
+        if (Array.isArray(initialDuplicatesData) && initialDuplicatesData.length > 0) {
+            showDuplicateSelector(initialDuplicatesData);
+        } else if (document.getElementById('vcf-path').value) {
+            logMessage("Headless processing complete: No duplicates were found.");
+        }
+    });
+</script>
+</body>
+</html>
