@@ -5,7 +5,21 @@ import webview
 import threading
 import importlib
 from flask import Flask, render_template, request, jsonify
+app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = False
 import time
+
+# CRITICAL FIX: Set working directory to exe location
+if getattr(sys, 'frozen', False):
+    # Running as PyInstaller exe
+    exe_dir = os.path.dirname(sys.executable)
+    os.chdir(exe_dir)
+    print(f"EXE MODE: Changed working directory to: {exe_dir}")
+else:
+    # Running as script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+    print(f"SCRIPT MODE: Working directory: {script_dir}")
 
 from vcf_extractor import VCFProcessor
 import subprocess
@@ -18,12 +32,41 @@ from webview.dom import DOMEventHandler
 import time
 import signal # Import signal module
 
+
+#  >>> Função para lidar com caminhos em modo de script e .exe
+def resource_path(relative_path):
+    """ Obtém o caminho absoluto para o recurso, funciona para dev e para PyInstaller """
+    try:
+        # PyInstaller cria uma pasta temp e armazena o caminho em _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # --- Setup ---
-app = Flask(__name__, static_folder='static')
+# <<< ALTERADO >>> Use a função resource_path para as pastas do Flask e arquivos de configuração
+static_folder_path = resource_path('static')
+template_folder_path = resource_path('templates')
+app.static_folder = static_folder_path
+app.template_folder = template_folder_path
+
 session_data = {}
 session_lock = threading.Lock()
 
-LOG_FILENAME = os.path.join(os.path.abspath(os.path.dirname(__file__)), "NAO_APAGAR.log")
+if getattr(sys, 'frozen', False):
+    config_ini_path = os.path.join(os.path.dirname(sys.executable), 'config.ini')
+else:
+    config_ini_path = os.path.join(os.path.dirname(__file__), 'config.ini')
+    
+if getattr(sys, 'frozen', False):
+    application_path = os.path.dirname(sys.executable)
+else:
+    application_path = os.path.dirname(os.path.abspath(__file__))
+
+LOG_FILENAME = os.path.join(application_path, "NAO_APAGAR.log")
+config_ini_path = os.path.join(application_path, 'config.ini')
+
 
 # --- NEW: Global variable to hold startup data ---
 # This is the reliable bridge between the main thread and the Flask thread.
@@ -32,11 +75,133 @@ initial_data_for_ui = {
     "duplicates": []
 }
 
-config_ini_path = os.path.join(os.path.dirname(__file__), 'config.ini')
+def create_default_config(config_path):
+    """Create default config.ini file"""
+    default_config = '''[Settings]
+[Settings]
+light_mode = follow
+
+[Titles]
+titles_to_remove = [
+    "Adv",
+    "Advogado",
+    "AEE",
+    "Amigos",
+    "Amor",
+    "Apartamento",
+    "Avó",
+    "Avô",
+    "Banco",
+    "Bradesco",
+    "Casa",
+    "CEESPI",
+    "Cel",
+    "cell",
+    "Clube",
+    "Consultório",
+    "Coord",
+    "Coordenadora",
+    "Coronel",
+    "Costureira",
+    "Cunhada",
+    "Cunhado",
+    "Diretor",
+    "Dona",
+    "Doutor",
+    "Doutora",
+    "DR",
+    "Dr",
+    "DRA",
+    "Dra",
+    "Empresa",
+    "Eng",
+    "Engenheiro",
+    "Escritório",
+    "Esposa",
+    "Esposo",
+    "Família",
+    "Fazenda",
+    "Filha",
+    "Filho",
+    "Igreja",
+    "Ir",
+    "Irmã",
+    "Irmão",
+    "meu",
+    "Mr",
+    "Mrs",
+    "Ms",
+    "Mãe",
+    "Namorada",
+    "Namorado",
+    "Neta",
+    "Neto",
+    "new",
+    "nome",
+    "now",
+    "PAE",
+    "PAEE",
+    "Pai",
+    "Pessoal",
+    "premium",
+    "Prima",
+    "PROF",
+    "Prof",
+    "Professor",
+    "Professora",
+    "rapaz",
+    "Seu",
+    "seu",
+    "Sobrinha",
+    "Sobrinho",
+    "Sr",
+    "Sra",
+    "Sítio",
+    "Tia",
+    "Tio",
+    "Trabalho",
+    "Vó",
+    "Vô",
+]
+
+'''
+    try:
+        os.makedirs(os.path.dirname(config_path), exist_ok=True)
+        with open(config_path, 'w', encoding='utf-8') as f:
+            f.write(default_config)
+        print(f"Created default config at: {config_path}")
+    except Exception as e:
+        print(f"Failed to create config: {e}")
 
 def read_config_ini():
+    # Try AppData first for exe, then fallback
+    if getattr(sys, 'frozen', False):
+        appdata_path = os.path.expanduser("~/AppData/Local/VCF_Processor")
+        config_paths = [
+            os.path.join(appdata_path, 'config.ini'),
+            os.path.join(sys._MEIPASS, 'config.ini'),
+            config_ini_path
+        ]
+    else:
+        config_paths = [config_ini_path]
+    
+    for path in config_paths:
+        if os.path.exists(path):
+            config_ini_path_used = path
+            break
+    else:
+        # No config found, create default in AppData
+        if getattr(sys, 'frozen', False):
+            config_ini_path_used = os.path.join(appdata_path, 'config.ini')
+        else:
+            config_ini_path_used = config_ini_path
+        create_default_config(config_ini_path_used)
+        
+    if not os.path.exists(config_ini_path_used):
+        return 'static', []
+        
     config = configparser.ConfigParser(allow_no_value=True)
-    with open(config_ini_path, encoding='utf-8') as f:
+    with open(config_ini_path_used, encoding='utf-8') as f:
         lines = f.readlines()
     # Remove lines that are part of the multi-line list to avoid parsing errors
     filtered_lines = []
@@ -92,8 +257,23 @@ LIGHT_MODE_DEFAULT, TITLES_TO_REMOVE = read_config_ini()
 
 # --- Drag and Drop Functions (Copied from Signature Analyzer) ---
 
-#lets set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging for PyInstaller builds
+if getattr(sys, 'frozen', False):
+    # Running in PyInstaller bundle
+    log_dir = os.path.dirname(sys.executable)
+else:
+    # Running in normal Python environment
+    log_dir = os.path.dirname(os.path.abspath(__file__))
+
+app_log_file = os.path.join(log_dir, 'app_debug.log')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(app_log_file, encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
 def on_drag(e):
@@ -157,7 +337,7 @@ def on_window_closed():
     # This works by sending a request to a dedicated shutdown route
     try:
         import requests
-        requests.post('http://127.0.0.1:5000/shutdown')
+        requests.post('http://12_0_0_1:5000/shutdown')
     except Exception as e:
         logger.error(f"Error sending shutdown request to Flask: {e}")
     finally:
@@ -402,37 +582,148 @@ def get_session_data():
 def start_vcf_processing():
     data = request.get_json()
     vcf_path = data.get('vcf_path')
-    if not vcf_path: return jsonify({"error": "VCF file path is required."}), 400
+    print(f"Starting VCF processing for: {vcf_path}")
+    logging.info(f"Starting VCF processing for: {vcf_path}")
+    
+    if not vcf_path: 
+        return jsonify({"error": "VCF file path is required."}), 400
+    
+    try:
+        log_path = LOG_FILENAME
+        # Reload config.ini to get updated titles
+        global LIGHT_MODE_DEFAULT, TITLES_TO_REMOVE
+        LIGHT_MODE_DEFAULT, TITLES_TO_REMOVE = read_config_ini()
+        processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
+        unique_contacts, duplicate_contacts = processor.get_unique_and_duplicate_contacts(vcf_path)
+        
+        print(f"VCF processing complete: {len(unique_contacts)} unique, {len(duplicate_contacts)} duplicates")
+        logging.info(f"VCF processing complete: {len(unique_contacts)} unique, {len(duplicate_contacts)} duplicates")
+        
+        # Auto-process for exe (bypass JS issues)
+        if getattr(sys, 'frozen', False):
+            print("EXE MODE: Auto-processing VCF to Excel...")
+            try:
+                base, _ = os.path.splitext(vcf_path)
+                output_file = processor.process_and_save(unique_contacts, base)
+                print(f"Auto-processed VCF to Excel: {output_file}")
+                logging.info(f"Auto-processed VCF to Excel: {output_file}")
+                # Return success message with file link for GUI
+                if output_file:
+                    return jsonify({
+                        "duplicates": duplicate_contacts,
+                        "message": "Processing complete!",
+                        "output_file": output_file
+                    })
+            except Exception as e:
+                print(f"Auto-processing failed: {e}")
+                logging.error(f"Auto-processing failed: {e}")
+        
+        with session_lock:
+            session_data['processor'] = processor
+            session_data['vcf_path'] = vcf_path
+            session_data['unique_contacts'] = unique_contacts
+            session_data.pop('output_base_name', None)
+            
+        return jsonify({"duplicates": duplicate_contacts})
+        
+    except Exception as e:
+        error_msg = f"Error processing VCF file: {e}"
+        print(error_msg)
+        logging.error(error_msg, exc_info=True)
+        return jsonify({"error": error_msg}), 500
+
+# <<< NOVO >>> Rota para processar o texto colado
+@app.route('/start_text_processing', methods=['POST'])
+def start_text_processing():
+    data = request.get_json()
+    text_content = data.get('text_content')
+    if not text_content or not text_content.strip():
+        return jsonify({"error": "Nenhum texto fornecido."}), 400
+
     log_path = LOG_FILENAME
-    # Reload config.ini to get updated titles
     global LIGHT_MODE_DEFAULT, TITLES_TO_REMOVE
     LIGHT_MODE_DEFAULT, TITLES_TO_REMOVE = read_config_ini()
     processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
-    unique_contacts, duplicate_contacts = processor.get_unique_and_duplicate_contacts(vcf_path)
+    
+    # Usa o novo método do processador para extrair contatos do texto
+    unique_contacts, duplicate_contacts = processor.get_unique_and_duplicate_contacts_from_text(text_content)
+    
     with session_lock:
         session_data['processor'] = processor
-        session_data['vcf_path'] = vcf_path
         session_data['unique_contacts'] = unique_contacts
+        # Define um nome de arquivo de saída padrão, já que não há arquivo de entrada
+        # Use Documents folder for text processing
+        import os
+        docs_path = os.path.expanduser("~/Documents")
+        session_data['output_base_name'] = os.path.join(docs_path, "Contatos_Colados")
+        # Limpa o caminho do vcf para evitar confusão
+        session_data.pop('vcf_path', None)
+        
     return jsonify({"duplicates": duplicate_contacts})
+
 
 @app.route('/reprocess_selected', methods=['POST'])
 def reprocess_selected():
     data = request.get_json()
     selected_to_reprocess = data.get('selected_to_reprocess', [])
+    
+    print(f"Reprocessing {len(selected_to_reprocess)} selected contacts")
+    logging.info(f"Reprocessing {len(selected_to_reprocess)} selected contacts")
+    
     with session_lock:
         processor = session_data.get('processor')
         vcf_path = session_data.get('vcf_path')
+        output_base_name = session_data.get('output_base_name')
         unique_contacts = session_data.get('unique_contacts', [])
-    if not processor or not vcf_path:
-        return jsonify({"error": "Session expired. Please start over."}), 400
-    numbers_to_remove = [contact['cleaned_number'] for contact in selected_to_reprocess]
-    if numbers_to_remove:
-        processor.remove_from_log(numbers_to_remove)
-    contacts_to_process = unique_contacts + selected_to_reprocess
-    output_file = processor.process_and_save(vcf_path, contacts_to_process)
-    with session_lock:
-        session_data.clear()
-    return jsonify({"message": "Processing complete!", "output_file": output_file or "None"})
+
+    if not processor or (not vcf_path and not output_base_name):
+        error_msg = "Session expired. Please start over."
+        print(error_msg)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+
+    try:
+        numbers_to_remove = [contact['cleaned_number'] for contact in selected_to_reprocess]
+        if numbers_to_remove:
+            processor.remove_from_log(numbers_to_remove)
+            
+        contacts_to_process = unique_contacts + selected_to_reprocess
+        print(f"Processing {len(contacts_to_process)} total contacts")
+        logging.info(f"Processing {len(contacts_to_process)} total contacts")
+        
+        # Determine output base name
+        if vcf_path:
+            base, _ = os.path.splitext(vcf_path)
+        else:
+            base = output_base_name
+        
+        print(f"Output base name: {base}")
+        logging.info(f"Output base name: {base}")
+
+        # Save to Excel
+        output_file = processor.process_and_save(contacts_to_process, base)
+        
+        if output_file:
+            print(f"Excel file created: {output_file}")
+            logging.info(f"Excel file created: {output_file}")
+        else:
+            print("Failed to create Excel file")
+            logging.error("Failed to create Excel file")
+        
+        with session_lock:
+            session_data.clear()
+            
+        return jsonify({
+            "message": "Processing complete!" if output_file else "Processing failed!", 
+            "output_file": output_file or "None"
+        })
+        
+    except Exception as e:
+        error_msg = f"Error during reprocessing: {e}"
+        print(error_msg)
+        logging.error(error_msg, exc_info=True)
+        return jsonify({"error": error_msg}), 500
+
 
 # Define the new Flask route for dropped files
 @app.route('/process_dropped_vcf', methods=['POST'])
@@ -456,12 +747,31 @@ def process_dropped_vcf():
         processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
         unique_contacts, duplicate_contacts = processor.get_unique_and_duplicate_contacts(vcf_path)
 
+        # Auto-process for exe (bypass JS issues)
+        if getattr(sys, 'frozen', False):
+            print("EXE MODE: Auto-processing dropped VCF to Excel...")
+            try:
+                base, _ = os.path.splitext(vcf_path)
+                output_file = processor.process_and_save(unique_contacts, base)
+                print(f"Auto-processed dropped VCF to Excel: {output_file}")
+                logging.info(f"Auto-processed dropped VCF to Excel: {output_file}")
+                # Return success message with file link for GUI
+                if output_file:
+                    return jsonify({
+                        "duplicates": duplicate_contacts,
+                        "message": "Processing complete!",
+                        "output_file": output_file
+                    }), 200
+            except Exception as e:
+                print(f"Auto-processing failed: {e}")
+                logging.error(f"Auto-processing failed: {e}")
+        
         with session_lock:
             session_data['processor'] = processor
             session_data['vcf_path'] = vcf_path
             session_data['unique_contacts'] = unique_contacts
+            session_data.pop('output_base_name', None)
 
-        # Return the duplicates found, similar to the start_vcf_processing route
         return jsonify({"duplicates": duplicate_contacts}), 200
 
     except FileNotFoundError:
@@ -473,7 +783,12 @@ def process_dropped_vcf():
 # Add a shutdown route for Flask
 @app.route('/shutdown', methods=['POST'])
 def shutdown():
-    request.environ.get('werkzeug.server.shutdown')()
+    # This function is a bit tricky to get right for shutting down a server
+    # in a thread. The request.environ method is standard for Werkzeug.
+    shutdown_func = request.environ.get('werkzeug.server.shutdown')
+    if shutdown_func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    shutdown_func()
     return 'Server shutting down...'
 
 
@@ -498,7 +813,9 @@ if __name__ == '__main__':
 
             if not duplicate_contacts:
                 print("No duplicates found. Processing unique contacts automatically.")
-                output_file = processor.process_and_save(initial_file_path, unique_contacts)
+                # <<< ALTERADO >>> Passa o nome base para a função de salvar
+                base, _ = os.path.splitext(initial_file_path)
+                output_file = processor.process_and_save(unique_contacts, base)
                 print(f"Headless processing complete. Output: {output_file or 'None'}")
                 sys.exit(0)
             else:
@@ -530,18 +847,16 @@ if __name__ == '__main__':
     # NOTE: The webview.create_window call requires the 'window' variable to be accessible
     # by the drag and drop functions (on_drop).
     # Pass the API instance to the window so JS can access it
-    window = webview.create_window('VCF Processor', app, js_api=api_instance, width=800, height=750, frameless=True, resizable=True)
+    window = webview.create_window('VCF Processor', app, js_api=api_instance, width=800, height=750, frameless=True, resizable=True, min_size=(600, 500))
     api_instance.set_window(window)
 
     # Run Flask app in a separate thread
-    # Make the Flask thread a daemon thread so it doesn't prevent the main process from exiting
-    flask_thread = threading.Thread(target=lambda: app.run(port=5000, debug=False, use_reloader=False))
-    flask_thread.daemon = True # Set as daemon thread
+    flask_thread = threading.Thread(target=lambda: app.run(port=5000, debug=False, use_reloader=False, threaded=True))
+    flask_thread.daemon = True
     flask_thread.start()
-    time.sleep(1) # Give the Flask server a moment to start
-
-    # Ensure the bind function is called to attach drag/drop events and window closing event
-    webview.start(bind, window, debug=False, http_server=False) # http_server=False because Flask is running
+    
+    # Start webview immediately (don't wait for Flask)
+    webview.start(bind, window, debug=False, http_server=False)
 
     # Add a short sleep after webview.start to allow the shutdown request to be sent
     time.sleep(0.5)

@@ -61,6 +61,26 @@ async function continueProcessing(selected_duplicates) {
 function showDuplicateSelector(duplicates) {
     setState({ duplicates: duplicates });
     logMessage(`Encontradas ${duplicates.length} duplicatas. Por favor, faça sua seleção.`);
+    
+    // Optimize for large lists
+    if (duplicates.length > 500) {
+        requestAnimationFrame(() => {
+            const style = document.createElement('style');
+            style.textContent = `
+                .duplicates-list { 
+                    height: 400px; 
+                    overflow-y: auto; 
+                    contain: layout style paint;
+                }
+                .duplicate-item { 
+                    height: 40px; 
+                    display: flex; 
+                    align-items: center;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    }
 }
 
 // Update submit button text based on checked checkboxes
@@ -179,7 +199,11 @@ window.addEventListener('pywebviewready', () => {
             });
             const data = await response.json();
             if (response.ok) {
-                if (data.duplicates && data.duplicates.length > 0) {
+                // Handle auto-processed files (exe mode)
+                if (data.output_file && data.output_file !== "None") {
+                    logMessage(`<strong>${data.message || 'Processing complete!'}</strong> Arquivo de saída: <a href="#" class="output-link" data-path="${data.output_file}">${data.output_file}</a>`);
+                    setState({ isLoading: false, isProcessing: false, duplicates: [], vcfPath: '', error: null });
+                } else if (data.duplicates && data.duplicates.length > 0) {
                     showDuplicateSelector(data.duplicates);
                     setState({ isLoading: false });
                     updateSubmitButtonText();

@@ -9,20 +9,28 @@
         #main-content-area { flex-grow: 1; padding-right: 15px; }
         #duplicate-selection { padding: 20px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; }
         #duplicates-list {
-    max-height: 200px;
-    overflow-y: auto; /* Add scroll to this element */
-    flex-grow: 1;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    padding: 10px;
-     --fade-amount: 8%; -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent); mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent);
-}
-
+            max-height: 200px;
+            overflow-y: auto;
+            flex-grow: 1;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            min-width: 0;
+            --fade-amount: 8%; -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent); mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent);
+        }
+        .button-container { cursor: pointer; }
+        .config-gear { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--gold-color); font-size: 20px; cursor: pointer; z-index: 1000; }
         .duplicate-item { display: flex; align-items: center; padding: 5px; border-bottom: 1px solid #eee; }
         #title-manager { margin-top: 20px; }
         #filtered-titles-list { list-style: none; padding: 0; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 10px; }
         #filtered-titles-list li { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border-bottom: 1px solid #eee; }
         .delete-title-btn { cursor: pointer; color: red; font-weight: bold; border: none; background: none; font-size: 1.2em; }
+        
+        /* <<< NOVO >>> Estilos para o seletor de modo */
+        .input-mode-selector { display: flex; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .mode-btn { background: none; border: none; color: var(--text-color); padding: 10px 15px; cursor: pointer; font-size: 1em; border-bottom: 2px solid transparent; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; }
+        .mode-btn.active { color: var(--2-color); border-bottom-color: var(--2-color); font-weight: bold; }
+        #text-content-area { width: 100%; min-height: 150px; margin-bottom: 10px; resize: vertical; }
     </style>
 </head>
 <body>
@@ -34,34 +42,51 @@
         </div>
     </div>
     <div class="main-wrapper">
+        <button class="config-gear" id="config-gear-btn" title="Configurações">⚙️</button>
         <div class="container" id="vcf-container">
         <h1>{{ window_title }}</h1>
-        <div id="duplicate-selection-1" style="display: none; color: var(--2-color); font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Estes contatos já estão no registro. Selecione quais você deseja reprocessar.</label>
-        <div class="button-row">
-            <div class="button-container"><button type="button" id="select-all-btn" class="button">Selecionar Todos</button></div>
-                        <div class="button-container"><button type="button" id="select-none-btn" class="button">Selecionar Nenhum</button></div>
-                        </div>
-
-        </div>
+        <div id="duplicate-selection-1" style="display: none; color: var(--2-color); font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Estes contatos já estão no registro. Selecione quais você deseja reprocessar.</div>
 
             <div id="main-content-area">
-                <div id="initial-form">
-                    <div class="input-field">
-                        <label for="vcf-path">Arquivo VCF:</label>
-                        <div style="display: contents;">
-                            <input type="text" id="vcf-path" class="input-style" value="{{ initial_vcf_path }}" placeholder="Selecione um arquivo VCF para processar...">
-                            <div class="button-container"><button type="button" id="browse-vcf-btn" class="button file-label">Procurar</button></div>
-                        </div>
-                    </div>
-                    <div class="button-container"><button type="button" id="start-btn" class="button">Processar VCF</button></div>
+                <!-- <<< NOVO >>> Seletor de modo de entrada -->
+                <div class="input-mode-selector" id="input-mode-selector">
+                    <button id="mode-file-btn" class="mode-btn">Processar Arquivo VCF</button>
+                    <button id="mode-text-btn" class="mode-btn active">Processar Lista de Texto</button>
                 </div>
+
+                <!-- <<< ALTERADO >>> Seção de formulário inicial agora dividida -->
+                <div id="initial-form">
+                    <!-- Seção para entrada de arquivo -->
+                    <div id="file-input-section" style="display: none;">
+                        <div class="input-field">
+                            <label for="vcf-path">Arquivo VCF:</label>
+                            <div style="display: contents;">
+                                <input type="text" id="vcf-path" class="input-style" value="{{ initial_vcf_path }}" placeholder="Selecione um arquivo VCF para processar...">
+                                <div class="button-container"><button type="button" id="browse-vcf-btn" class="button file-label">Procurar</button></div>
+                            </div>
+                        </div>
+                        <div class="button-container"><button type="button" id="start-btn" class="button">Processar VCF</button></div>
+                    </div>
+                    <!-- <<< NOVO >>> Seção para entrada de texto -->
+                    <div id="text-input-section">
+                        <label for="text-content-area">Cole a lista de contatos aqui:</label>
+                        <textarea id="text-content-area" class="input-style" placeholder="✅ Nome +55...&#10;Name: Outro Nome..."></textarea>
+                        <div class="button-container"><button type="button" id="start-text-btn" class="button">Processar Texto</button></div>
+                    </div>
+                </div>
+
                 <div id="duplicate-selection-2" style="display: none;">
-                        <div style="display: flex;">
-                            <form id="duplicates-form">
+                        <div style="display: flex; gap: 15px;">
+                            <form id="duplicates-form" style="flex: 1;">
+                                <input type="text" id="search-duplicates-input" placeholder="Buscar contatos..." class="input-style" style="margin-bottom: 10px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <input type="checkbox" id="select-all-checkbox" style="margin-right: 8px;">
+                                    <label for="select-all-checkbox">Selecionar todos</label>
+                                </div>
                                 <div id="duplicates-list"></div>
                             </form>
-                            <div class="button-container">
-                                <button id="submit-button" class="button">Processar Selecionados</button>
+                            <div class="button-container" style="flex-shrink: 0; width: 110px;">
+                                <button id="submit-button" class="button" style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.9em;">Processar</button>
                             </div>
                         </div>
                     </div>
@@ -69,7 +94,7 @@
             </div>
             <div id="log-area" style="display: none; height: 90px;"></div>
 
-    <div class="advanced-toggle"><a href="#" id="advanced-toggle-link">Configurações</a></div>
+
 </div>
 <div id="advanced-panel">
     <div id="advanced-panel-content" class="advanced-panel">
@@ -85,6 +110,7 @@
         <div id="title-manager">
             <h4 class="h4">Títulos Filtrados</h4>
             <p style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Palavras nesta lista serão removidas dos nomes.</p>
+            <input type="text" id="search-titles-input" placeholder="Buscar títulos..." class="input-style-adv" style="margin-bottom: 10px;">
             <ul id="filtered-titles-list" style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;"></ul>
             <div class="input-field-adv">
         <input type="text" id="new-title-input" placeholder="Adicionar um título para filtrar..." class="input-style-adv" autofocus>
@@ -104,6 +130,14 @@
     </div>
 
 <script>
+    // --- <<< NOVO >>> Adicionando referências aos novos elementos ---
+    const modeFileBtn = document.getElementById('mode-file-btn');
+    const modeTextBtn = document.getElementById('mode-text-btn');
+    const fileInputSection = document.getElementById('file-input-section');
+    const textInputSection = document.getElementById('text-input-section');
+    const textContentArea = document.getElementById('text-content-area');
+    const startTextBtn = document.getElementById('start-text-btn');
+
     let state = {
         isLoading: false,
         isProcessing: false,
@@ -117,6 +151,10 @@
 
 
 let lightMode = 'follow'; // 'static' or 'follow'
+let currentLightX = window.innerWidth / 2;
+let currentLightY = window.innerHeight / 2;
+let targetLightX = currentLightX;
+let targetLightY = currentLightY;
 
 // On change, save preference
 document.getElementById('lightModeSwitch').addEventListener('change', () => {
@@ -132,46 +170,73 @@ document.getElementById('lightModeSwitch').addEventListener('change', () => {
 
 
 document.addEventListener('mousemove', (e) => {
-    let light = document.querySelector('.light');
-    if (!light) {
-        light = document.createElement('div');
-        light.className = 'light';
-        document.body.appendChild(light);
-    }
     if (lightMode === 'follow') {
-        light.style.left = `${e.clientX}px`;
-        light.style.top = `${e.clientY}px`;
+        targetLightX = e.clientX;
+        targetLightY = e.clientY;
     }
-    // Calculate shadows for elements
-    document.querySelectorAll('*').forEach(el => {
-        const rect = el.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const lightX = (lightMode === 'follow') ? e.clientX : window.innerWidth / 2;
-        const lightY = (lightMode === 'follow') ? e.clientY : window.innerHeight / 2;
-        const dx = centerX - lightX;
-        const dy = centerY - lightY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const offsetX = dist > 0 ? (dx / dist) * 2 : 0;
-        const offsetY = dist > 0 ? (dy / dist) * 2 : 0;
-        el.style.textShadow = `${offsetX}px ${offsetY}px 5px rgba(0,0,0,0.5)`;
-        if(el.classList.contains('input-style') || el.classList.contains('advanced-panel')) {
-            el.style.boxShadow = `${offsetX}px ${offsetY}px 10px rgba(0,0,0,0.3)`;
-        }
-    });
 });
+
+let lastUpdateTime = 0;
+const updateInterval = 16; // ~60fps
+
+function updateShadows(timestamp) {
+    if (timestamp - lastUpdateTime < updateInterval) {
+        requestAnimationFrame(updateShadows);
+        return;
+    }
+    lastUpdateTime = timestamp;
+    
+    // Smooth interpolation (lerp) for stability
+    const lerp = 0.1;
+    const prevX = currentLightX;
+    const prevY = currentLightY;
+    currentLightX += (targetLightX - currentLightX) * lerp;
+    currentLightY += (targetLightY - currentLightY) * lerp;
+    
+    // Only update if movement is significant (>1px)
+    const deltaX = Math.abs(currentLightX - prevX);
+    const deltaY = Math.abs(currentLightY - prevY);
+    
+    if (deltaX > 1 || deltaY > 1) {
+        let light = document.querySelector('.light');
+        if (!light) {
+            light = document.createElement('div');
+            light.className = 'light';
+            document.body.appendChild(light);
+        }
+        
+        light.style.left = `${currentLightX}px`;
+        light.style.top = `${currentLightY}px`;
+        
+        // Only update shadows for visible elements
+        const visibleElements = document.querySelectorAll('.input-style, .advanced-panel, h1, h3, h4, label');
+        visibleElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const dx = centerX - currentLightX;
+            const dy = centerY - currentLightY;
+            const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 50); // Minimum distance of 50px
+            const offsetX = Math.min(Math.max((dx / dist) * 2, -3), 3); // Clamp between -3 and 3
+            const offsetY = Math.min(Math.max((dy / dist) * 2, -3), 3); // Clamp between -3 and 3
+            el.style.textShadow = `${offsetX}px ${offsetY}px 5px rgba(0,0,0,0.5)`;
+            if(el.classList.contains('input-style') || el.classList.contains('advanced-panel')) {
+                el.style.boxShadow = `${offsetX}px ${offsetY}px 10px rgba(0,0,0,0.3)`;
+            }
+        });
+    }
+    
+    requestAnimationFrame(updateShadows);
+}
+
+// Start the smooth animation loop
+requestAnimationFrame(updateShadows);
 
 // For static mode:
 function updateLightPosition() {
-    let light = document.querySelector('.light');
-    if (!light) {
-        light = document.createElement('div');
-        light.className = 'light';
-        document.body.appendChild(light);
-    }
     if (lightMode === 'static') {
-        light.style.left = `${window.innerWidth / 2}px`;
-        light.style.top = `${window.innerHeight / 2}px`;
+        targetLightX = window.innerWidth / 2;
+        targetLightY = window.innerHeight / 2;
     }
 }
 // Call updateLightPosition initially for static mode if needed
@@ -190,13 +255,15 @@ if (lightMode === 'static') updateLightPosition();
     const titlesList = document.getElementById('filtered-titles-list');
     const newTitleInput = document.getElementById('new-title-input');
     const addTitleBtn = document.getElementById('add-title-btn');
+    const searchTitlesInput = document.getElementById('search-titles-input');
     const advancedPanel = document.getElementById('advanced-panel');
-    const selectAllBtn = document.getElementById('select-all-btn');
-    const selectNoneBtn = document.getElementById('select-none-btn');
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    const searchDuplicatesInput = document.getElementById('search-duplicates-input');
     const submitButton = document.getElementById('submit-button');
     const viewLogBtn = document.getElementById('view-log-btn');
     const browseVcfBtn = document.getElementById('browse-vcf-btn');
-    const advancedToggleLink = document.getElementById('advanced-toggle-link');
+    const configGearBtn = document.getElementById('config-gear-btn');
+    const inputModeSelector = document.getElementById('input-mode-selector');
     const closeBtn = document.getElementById('close-btn');
     const minimizeBtn = document.getElementById('minimize-btn');
     const titlebar = document.getElementById('titlebar');
@@ -268,11 +335,21 @@ if (lightMode === 'static') updateLightPosition();
         }
     }
 
+    // Function to update submit button text based on checked checkboxes
+    function updateSubmitButtonText() {
+        const checkedCheckboxes = duplicatesList.querySelectorAll('input[type="checkbox"]:checked').length;
+        if (checkedCheckboxes > 0) {
+            submitButton.textContent = 'Processar Selecionados';
+        } else {
+            submitButton.textContent = 'Pular';
+        }
+    }
 
     function showDuplicateSelector(duplicates) {
-        // This function is now primarily responsible for setting the duplicates in state
         setState({ duplicates: duplicates });
         logMessage(`Encontradas ${duplicates.length} duplicatas. Por favor, faça sua seleção.`);
+        
+        // No need for separate optimization - handled in render function
     }
 
     // Define the new function to handle dropped or selected VCF paths
@@ -298,19 +375,17 @@ if (lightMode === 'static') updateLightPosition();
             const data = await response.json();
 
             if (response.ok) {
-                if (data.duplicates && data.duplicates.length > 0) {
-                    // Show duplicates selection if duplicates are found
-                    showDuplicateSelector(data.duplicates); // Use the helper to update duplicates state and log
-                    setState({ isLoading: false }); // End loading state after duplicates are shown
-                    updateSubmitButtonText(); // Initial button text update based on duplicates
+                // Handle auto-processed files (exe mode)
+                if (data.output_file && data.output_file !== "None") {
+                    logMessage(`<strong>${data.message || 'Processing complete!'}</strong> Arquivo de saída: <a href="#" class="output-link" data-path="${data.output_file}">${data.output_file}</a>`);
+                    setState({ isLoading: false, isProcessing: false, duplicates: [], vcfPath: '', error: null });
+                } else if (data.duplicates && data.duplicates.length > 0) {
+                    showDuplicateSelector(data.duplicates);
+                    setState({ isLoading: false });
+                    updateSubmitButtonText();
                 } else {
-                    // No duplicates found, indicate processing is complete or handled backend
-                    logMessage("Nenhuma duplicata encontrada.");
-                    // Since the backend headless mode handles processing unique contacts
-                    // when no duplicates are found, we can just indicate completion.
-                    logMessage("Processamento automático de contatos únicos concluído.");
-                    // Reset state to initial form after successful processing without duplicates
-                    setState({ isLoading: false, isProcessing: false, duplicates: [], vcfPath: '', error: null }); // Clear path after successful processing
+                    logMessage("Nenhuma duplicata encontrada. Processamento concluído.");
+                    setState({ isLoading: false, isProcessing: false, duplicates: [], vcfPath: '', error: null });
                 }
             } else {
                 // Handle server errors
@@ -337,57 +412,112 @@ if (lightMode === 'static') updateLightPosition();
         initialForm.style.display = showInitialForm ? 'block' : 'none';
         duplicateSelectionDiv1.style.display = showDuplicateSelection ? 'block' : 'none';
         duplicateSelectionDiv2.style.display = showDuplicateSelection ? 'block' : 'none';
+        inputModeSelector.style.display = showDuplicateSelection ? 'none' : 'flex';
         //duplicateSelectionDiv3.style.display = showDuplicateSelection ? 'block' : 'none';
 
         // Enable/Disable buttons
         // Start button is enabled only if there's a vcfPath and not loading/processing
         startBtn.disabled = state.isLoading || state.isProcessing || !state.vcfPath;
+        // <<< NOVO >>> Desabilita o botão de processar texto também
+        startTextBtn.disabled = state.isLoading || state.isProcessing;
 
-        selectAllBtn.disabled = state.isLoading || state.isProcessing || state.duplicates.length === 0;
-        selectNoneBtn.disabled = state.isLoading || state.isProcessing || state.duplicates.length === 0;
+        if (selectAllCheckbox) selectAllCheckbox.disabled = state.isLoading || state.isProcessing || state.duplicates.length === 0;
+        if (searchDuplicatesInput) searchDuplicatesInput.disabled = state.isLoading || state.isProcessing;
         browseVcfBtn.disabled = state.isLoading || state.isProcessing;
         addTitleBtn.disabled = state.isLoading || state.isProcessing;
         viewLogBtn.disabled = state.isLoading || state.isProcessing;
         newTitleInput.disabled = state.isLoading || state.isProcessing;
+        if (searchTitlesInput) searchTitlesInput.disabled = state.isLoading || state.isProcessing;
 
         // Submit button text and disabled state
         const checkedCheckboxes = duplicatesList.querySelectorAll('input[type="checkbox"]:checked').length;
         if (state.duplicates.length > 0 && !state.isProcessing) {
             if (checkedCheckboxes > 0) {
-                submitButton.textContent = 'Processar Selecionados';
+                submitButton.textContent = 'Processar';
                 submitButton.disabled = state.isLoading || state.isProcessing; // Disable if loading/processing
             } else {
                 submitButton.textContent = 'Pular';
                 submitButton.disabled = state.isLoading || state.isProcessing; // Disable if loading/processing
             }
         } else {
-             submitButton.textContent = 'Processar Selecionados'; // Default text when not in duplicate selection
+             submitButton.textContent = 'Processar'; // Default text when not in duplicate selection
              submitButton.disabled = true; // Disabled when not in duplicate selection
         }
 
 
-        // Populate Duplicates List
+        // Populate Duplicates List with search filter and virtual scrolling
         duplicatesList.innerHTML = ''; // Clear existing
-        if (state.duplicates.length > 0) {
-            state.duplicates.forEach((contact, index) => {
-                const div = document.createElement('div');
-                div.className = 'duplicate-item';
-                // Ensure value is properly escaped if needed, or use data attributes
-                // Use data attribute for contact data instead of value for cleaner HTML and easier parsing
-                div.innerHTML = `<input type="checkbox" id="dup-${index}" name="selected_duplicates" data-contact='${JSON.stringify(contact)}'><label for="dup-${index}">${contact.original_name} (${contact.cleaned_number})</label>`;
-                duplicatesList.appendChild(div);
-            });
+        const duplicateSearchTerm = searchDuplicatesInput ? searchDuplicatesInput.value.toLowerCase() : '';
+        const filteredDuplicates = duplicateSearchTerm ? 
+            state.duplicates.filter(contact => 
+                contact.original_name.toLowerCase().includes(duplicateSearchTerm) || 
+                contact.cleaned_number.includes(duplicateSearchTerm)
+            ) : state.duplicates;
+        
+        if (filteredDuplicates.length > 0) {
+            if (state.duplicates.length > 1000) {
+                // Virtual scrolling for very large lists
+                const itemHeight = 40;
+                const containerHeight = 400;
+                const visibleItems = Math.ceil(containerHeight / itemHeight);
+                const totalHeight = state.duplicates.length * itemHeight;
+                
+                duplicatesList.style.height = `${containerHeight}px`;
+                duplicatesList.style.overflowY = 'auto';
+                duplicatesList.innerHTML = `<div style="height: ${totalHeight}px; position: relative;"></div>`;
+                
+                const container = duplicatesList.firstChild;
+                let startIndex = 0;
+                
+                function renderVisibleItems() {
+                    const scrollTop = duplicatesList.scrollTop;
+                    startIndex = Math.floor(scrollTop / itemHeight);
+                    const endIndex = Math.min(startIndex + visibleItems + 5, state.duplicates.length);
+                    
+                    container.innerHTML = '';
+                    for (let i = startIndex; i < endIndex; i++) {
+                        const contact = state.duplicates[i];
+                        const div = document.createElement('div');
+                        div.className = 'duplicate-item';
+                        div.style.position = 'absolute';
+                        div.style.top = `${i * itemHeight}px`;
+                        div.style.width = '100%';
+                        div.style.height = `${itemHeight}px`;
+                        const isSelected = state.duplicates.selectedAll || false;
+                        div.innerHTML = `<input type="checkbox" id="dup-${i}" name="selected_duplicates" data-contact='${JSON.stringify(contact)}' ${isSelected ? 'checked' : ''}><label for="dup-${i}">${contact.original_name} (${contact.cleaned_number})</label>`;
+                        container.appendChild(div);
+                    }
+                }
+                
+                duplicatesList.addEventListener('scroll', renderVisibleItems);
+                renderVisibleItems();
+            } else {
+                // Standard rendering for smaller lists
+                const fragment = document.createDocumentFragment();
+                filteredDuplicates.forEach((contact, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'duplicate-item';
+                    div.innerHTML = `<input type="checkbox" id="dup-${index}" name="selected_duplicates" data-contact='${JSON.stringify(contact)}'><label for="dup-${index}">${contact.original_name} (${contact.cleaned_number})</label>`;
+                    fragment.appendChild(div);
+                });
+                duplicatesList.appendChild(fragment);
+            }
         }
 
-        // Populate Filtered Titles List
+        // Populate Filtered Titles List with search filter
         titlesList.innerHTML = ''; // Clear existing
-        if (state.filteredTitles.length > 0) {
-            state.filteredTitles.forEach(title => {
+        const titleSearchTerm = searchTitlesInput ? searchTitlesInput.value.toLowerCase() : '';
+        const filteredTitles = titleSearchTerm ? 
+            state.filteredTitles.filter(title => title.toLowerCase().includes(titleSearchTerm)) : 
+            state.filteredTitles;
+        
+        if (filteredTitles.length > 0) {
+            filteredTitles.forEach(title => {
                 const li = document.createElement('li');
                 li.textContent = title;
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = '×';
-                deleteBtn.className = 'delete-title-btn'; // Use class for delegation
+                deleteBtn.className = 'delete-title-btn';
                 li.appendChild(deleteBtn);
                 titlesList.appendChild(li);
             });
@@ -404,8 +534,8 @@ if (lightMode === 'static') updateLightPosition();
 
 
     // --- Main Initializer ---
-    window.addEventListener('pywebviewready', () => {
-        // Attach all event listeners once the DOM and pywebview are ready
+    document.addEventListener('DOMContentLoaded', () => {
+        // Attach all event listeners once the DOM is ready
 
         fetch('/get_light_mode')
             .then(response => response.json())
@@ -418,6 +548,42 @@ if (lightMode === 'static') updateLightPosition();
         fetchAndDisplayTitles();
         // Initial render call - this will set the initial state based on Flask template values
         render(state);
+
+        // Global drag and drop for VCF files
+        document.addEventListener('dragover', (e) => {
+            if (state.duplicates.length === 0) { // Only allow when not in duplicate selection
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            }
+        });
+
+        document.addEventListener('drop', (e) => {
+            if (state.duplicates.length === 0) { // Only allow when not in duplicate selection
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.name.toLowerCase().endsWith('.vcf')) {
+                        handleVcfPathReady(file.path || file.name);
+                    }
+                }
+            }
+        });
+
+        // <<< NOVO >>> Lógica para alternar entre os modos de entrada
+        modeFileBtn.addEventListener('click', () => {
+            modeFileBtn.classList.add('active');
+            modeTextBtn.classList.remove('active');
+            fileInputSection.style.display = 'block';
+            textInputSection.style.display = 'none';
+        });
+
+        modeTextBtn.addEventListener('click', () => {
+            modeTextBtn.classList.add('active');
+            modeFileBtn.classList.remove('active');
+            textInputSection.style.display = 'block';
+            fileInputSection.style.display = 'none';
+        });
 
         // Add event listener for changes to the vcf-path input field
         vcfPathInput.addEventListener('input', (e) => {
@@ -451,48 +617,140 @@ if (lightMode === 'static') updateLightPosition();
             }
         });
 
-newTitleInput.addEventListener('keypress', async (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        const newTitle = newTitleInput.value.trim();
-        if (newTitle && !state.filteredTitles.includes(newTitle)) {
-            setState({ filteredTitles: [...state.filteredTitles, newTitle] });
-            newTitleInput.value = '';
-            await saveTitles();
-            newTitleInput.focus();
-            newTitleInput.select();
-        }
-    }
-});
+        newTitleInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const newTitle = newTitleInput.value.trim();
+                if (newTitle && !state.filteredTitles.includes(newTitle)) {
+                    setState({ filteredTitles: [...state.filteredTitles, newTitle] });
+                    newTitleInput.value = '';
+                    await saveTitles();
+                    newTitleInput.focus();
+                    newTitleInput.select();
+                }
+            }
+        });
+
+        // Live search for titles
+        searchTitlesInput.addEventListener('input', () => {
+            render(state); // Re-render to apply search filter
+        });
         // Event listener for changes within the duplicates list (checkbox clicks)
         duplicatesList.addEventListener('change', (e) => {
             if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
-                // No need to re-render the whole list, just update the button text
                 updateSubmitButtonText();
             }
+        });
+
+        // Prevent text selection during drag and enable scroll wheel
+        duplicatesList.addEventListener('selectstart', (e) => {
+            if (isDragging) e.preventDefault();
+        });
+        
+        duplicatesList.addEventListener('wheel', (e) => {
+            e.stopPropagation();
         });
 
         // Function to update submit button text based on checked checkboxes
         function updateSubmitButtonText() {
             const checkedCheckboxes = duplicatesList.querySelectorAll('input[type="checkbox"]:checked').length;
             if (checkedCheckboxes > 0) {
-                submitButton.textContent = 'Processar Selecionados';
+                submitButton.textContent = 'Processar';
             } else {
                 submitButton.textContent = 'Pular';
             }
         }
 
 
+        let isDragging = false;
+        let dragStarted = false;
+        let lastSelectedItem = null;
+        let dragMode = 'select'; // 'select' or 'unselect'
+        let lastDragTime = 0;
+
         // Event listener for clicking on duplicate list items (to toggle checkbox)
-        duplicatesList.addEventListener('click', (e) => {
-            const duplicateItem = e.target.closest('.duplicate-item');
-            if (duplicateItem && !e.target.classList.contains('delete-title-btn') && e.target.tagName !== 'INPUT') {
-                const checkbox = duplicateItem.querySelector('input[type="checkbox"]');
-                if (checkbox) {
-                    checkbox.checked = !checkbox.checked;
-                    updateSubmitButtonText(); // Update button text after toggling
+        document.addEventListener('click', (e) => {
+            if (duplicatesList.contains(e.target) && !dragStarted) {
+                const duplicateItem = e.target.closest('.duplicate-item');
+                if (duplicateItem && e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
+                    const checkbox = duplicateItem.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        updateSubmitButtonText();
+                    }
                 }
             }
+        });
+
+        // Drag selection for duplicate items
+        document.addEventListener('mousedown', (e) => {
+            if (duplicatesList.contains(e.target)) {
+                isDragging = true;
+                dragStarted = false;
+                const duplicateItem = e.target.closest('.duplicate-item');
+                if (duplicateItem) {
+                    const checkbox = duplicateItem.querySelector('input[type="checkbox"]');
+                    dragMode = checkbox && checkbox.checked ? 'unselect' : 'select';
+                }
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const now = Date.now();
+                if (now - lastDragTime < 16) return; // Throttle to 60fps
+                lastDragTime = now;
+                
+                dragStarted = true;
+                const rect = duplicatesList.getBoundingClientRect();
+                const scrollZone = 50;
+                
+                // Auto-scroll and select when near edges or outside
+                if ((e.clientY < rect.top + scrollZone || e.clientY < rect.top) && duplicatesList.scrollTop > 0) {
+                    duplicatesList.scrollTop -= 5;
+                    setTimeout(() => {
+                        const firstItem = duplicatesList.querySelector('.duplicate-item');
+                        if (firstItem) {
+                            const checkbox = firstItem.querySelector('input[type="checkbox"]');
+                            if (checkbox) {
+                                checkbox.checked = dragMode === 'select';
+                                updateSubmitButtonText();
+                            }
+                        }
+                    }, 5);
+                } else if ((e.clientY > rect.bottom - scrollZone || e.clientY > rect.bottom)) {
+                    duplicatesList.scrollTop += 5;
+                    setTimeout(() => {
+                        const items = duplicatesList.querySelectorAll('.duplicate-item');
+                        const lastItem = items[items.length - 1];
+                        if (lastItem) {
+                            const checkbox = lastItem.querySelector('input[type="checkbox"]');
+                            if (checkbox) {
+                                checkbox.checked = dragMode === 'select';
+                                updateSubmitButtonText();
+                            }
+                        }
+                    }, 5);
+                }
+                
+                // Select item under mouse
+                if (duplicatesList.contains(e.target)) {
+                    const duplicateItem = e.target.closest('.duplicate-item');
+                    if (duplicateItem && duplicateItem !== lastSelectedItem) {
+                        const checkbox = duplicateItem.querySelector('input[type="checkbox"]');
+                        if (checkbox) {
+                            checkbox.checked = dragMode === 'select';
+                            updateSubmitButtonText();
+                        }
+                        lastSelectedItem = duplicateItem;
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            setTimeout(() => { dragStarted = false; }, 10);
+            isDragging = false;
         });
 
 
@@ -510,6 +768,7 @@ newTitleInput.addEventListener('keypress', async (e) => {
             } else {
                 // Skip functionality
                 logMessage("Pulando processamento de duplicatas.");
+                await continueProcessing([]); // <<< ALTERADO >>> Chama com lista vazia para processar apenas os únicos
                 setState({ duplicates: [], isProcessing: false, isLoading: false, vcfPath: '' }); // Clear path and duplicates, return to initial state
             }
         });
@@ -526,14 +785,19 @@ newTitleInput.addEventListener('keypress', async (e) => {
             }
         });
 
-        selectAllBtn.addEventListener('click', () => {
-            duplicatesList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
-            updateSubmitButtonText(); // Update button text after selecting all
-        });
-        selectNoneBtn.addEventListener('click', () => {
-            duplicatesList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            updateSubmitButtonText(); // Update button text after selecting none
-        });
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', () => {
+                const isChecked = selectAllCheckbox.checked;
+                duplicatesList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = isChecked);
+                updateSubmitButtonText();
+            });
+        }
+
+        if (searchDuplicatesInput) {
+            searchDuplicatesInput.addEventListener('input', () => {
+                render(state);
+            });
+        }
 
         startBtn.addEventListener('click', async () => {
             if (!state.vcfPath) {
@@ -542,6 +806,38 @@ newTitleInput.addEventListener('keypress', async (e) => {
             }
             // Call handleVcfPathReady to unify the processing logic
             handleVcfPathReady(state.vcfPath);
+        });
+
+        // <<< NOVO >>> Event listener para o novo botão de processar texto
+        startTextBtn.addEventListener('click', async () => {
+            const textContent = textContentArea.value.trim();
+            if (!textContent) {
+                logMessage("Erro: Por favor, cole o texto dos contatos na área designada.");
+                return;
+            }
+            setState({ isLoading: true, logMessages: [] });
+            logMessage("Processando texto...");
+            try {
+                const response = await fetch('/start_text_processing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text_content: textContent })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Erro desconhecido no servidor.");
+
+                if (data.duplicates && data.duplicates.length > 0) {
+                    showDuplicateSelector(data.duplicates);
+                } else {
+                    logMessage("Nenhuma duplicata encontrada. Processando contatos únicos...");
+                    await continueProcessing([]); // Processa apenas os únicos
+                }
+            } catch (error) {
+                logMessage(`Erro: ${error.message}`);
+                textContentArea.removeAttribute('readonly');
+            } finally {
+                setState({ isLoading: false });
+            }
         });
 
         // view-log-button listener
@@ -560,7 +856,16 @@ newTitleInput.addEventListener('keypress', async (e) => {
             }
         });
 
-        advancedToggleLink.addEventListener('click', (e) => { e.preventDefault(); setState({ showAdvanced: !state.showAdvanced }); }); // Toggle advanced state
+        configGearBtn.addEventListener('click', (e) => { e.preventDefault(); setState({ showAdvanced: !state.showAdvanced }); }); // Toggle advanced state
+
+        // Make button containers clickable
+        document.addEventListener('click', (e) => {
+            const buttonContainer = e.target.closest('.button-container');
+            if (buttonContainer && !e.target.matches('button')) {
+                const button = buttonContainer.querySelector('button');
+                if (button) button.click();
+            }
+        });
         closeBtn.addEventListener('click', () => window.pywebview.api.close_window());
         minimizeBtn.addEventListener('click', () => window.pywebview.api.minimize_window());
 
@@ -588,19 +893,13 @@ newTitleInput.addEventListener('keypress', async (e) => {
          // Click outside to close advanced panel
         document.addEventListener('mousedown', (e) => {
             const panel = document.getElementById('advanced-panel');
-            const toggle = document.getElementById('advanced-toggle-link');
+            const toggle = document.getElementById('config-gear-btn');
             if (state.showAdvanced && !panel.contains(e.target) && !toggle.contains(e.target)) { // Check state
                 setState({ showAdvanced: false }); // Update state
             }
         });
 
-        // Assuming there's a title input field with id 'title-input'
-        document.getElementById('new-title-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                // Call function to add title
-                addTitle();
-            }
-        });
+
 
 
         // Corrected Auto-Start Logic

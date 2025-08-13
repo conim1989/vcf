@@ -1,50 +1,69 @@
-# build.spec
-
 # -*- mode: python ; coding: utf-8 -*-
 
-import os
+# Este é um arquivo de especificação para o PyInstaller.
+# Para construir o executável, execute no terminal:
+# pyinstaller VCF_Processor.spec
 
-base_path = os.getcwd()
+block_cipher = None
 
+# a: Analysis block. Aqui definimos as fontes do nosso código e as dependências.
 a = Analysis(
-    ['app.py'],
-    pathex=[base_path],
+    ['app.py'],  # O script principal do seu aplicativo
+    pathex=[],
     binaries=[],
+    
+    # datas: A parte mais importante para incluir arquivos que não são de código.
+    # O formato é uma lista de tuplas: ('caminho/do/arquivo/ou/pasta', 'pasta_de_destino_no_exe')
     datas=[
-        ('templates', 'templates'),
-        ('static', 'static'),
         ('config.ini', '.'),
-        ('vcf_extractor.py', '.')
+        ('static', 'static'),
+        ('templates', 'templates'),
     ],
-    # --- THIS IS THE CHANGE ---
-    hiddenimports=[
-        'webview',
-        'webview.platforms.winforms', # Often needed for Windows
-        'pandas._libs.tslibs.base'    # Still needed for pandas
-    ],
-    excludes=['torch', 'tensorflow', 'tensorflow_estimator', 'torchvision', 'torchaudio', 'tensorboard'],
+    
+    # hiddenimports: Lista de bibliotecas que o PyInstaller pode não encontrar sozinho.
+    # Esta é a correção para o problema do 'pandas' não encontrar o motor do Excel.
+    hiddenimports=['openpyxl'],
+    
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
 )
-pyz = PYZ(a.pure)
 
-exe = EXE(pyz,
-          a.scripts,
-          [],
-          exclude_binaries=True,
-          name='Processador_de_VCF',
-          debug=False,
-          bootloader_ignore_signals=False,
-          strip=False,
-          upx=True,
-          console=False , icon='icon.ico')
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               upx_exclude=[],
-               name='Processador_de_VCF')
+# pyz: Cria o arquivo .pyz que agrupa todos os módulos Python.
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+# exe: Define as configurações para o executável final.
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='VCF_Processor',  # O nome do seu arquivo .exe
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,  # <<< IMPORTANTE >>> 'False' para esconder o console preto (modo janela)
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+)
+
+# coll: Usado para o modo de pasta (não --onefile). Não precisamos mexer aqui.
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='VCF_Processor',
+)
