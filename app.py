@@ -54,18 +54,17 @@ app.template_folder = template_folder_path
 session_data = {}
 session_lock = threading.Lock()
 
+# Use AppData for user settings
 if getattr(sys, 'frozen', False):
-    config_ini_path = os.path.join(os.path.dirname(sys.executable), 'config.ini')
-else:
-    config_ini_path = os.path.join(os.path.dirname(__file__), 'config.ini')
-    
-if getattr(sys, 'frozen', False):
+    appdata_path = os.path.expanduser("~/AppData/Local/VCF_PROCESSOR")
+    os.makedirs(appdata_path, exist_ok=True)
+    config_ini_path = os.path.join(appdata_path, 'config.ini')
     application_path = os.path.dirname(sys.executable)
 else:
+    config_ini_path = os.path.join(os.path.dirname(__file__), 'config.ini')
     application_path = os.path.dirname(os.path.abspath(__file__))
 
 LOG_FILENAME = os.path.join(application_path, "NAO_APAGAR.log")
-config_ini_path = os.path.join(application_path, 'config.ini')
 
 
 # --- NEW: Global variable to hold startup data ---
@@ -78,7 +77,6 @@ initial_data_for_ui = {
 def create_default_config(config_path):
     """Create default config.ini file"""
     default_config = '''[Settings]
-[Settings]
 light_mode = follow
 
 [Titles]
@@ -203,12 +201,22 @@ def read_config_ini():
     config = configparser.ConfigParser(allow_no_value=True)
     with open(config_ini_path_used, encoding='utf-8') as f:
         lines = f.readlines()
-    # Remove lines that are part of the multi-line list to avoid parsing errors
+    # Remove lines that are part of the multi-line list and merge duplicate sections
     filtered_lines = []
     in_titles = False
+    current_section = None
+    
     for line in lines:
         stripped = line.strip()
-        if stripped.startswith('titles_to_remove'):
+        
+        # Handle section headers - merge duplicates
+        if stripped.startswith('[') and stripped.endswith(']'):
+            section_name = stripped
+            if section_name != current_section:
+                current_section = section_name
+                filtered_lines.append(line)
+            # Skip duplicate section headers but keep their content
+        elif stripped.startswith('titles_to_remove'):
             if stripped.endswith('['):
                 in_titles = True
                 filtered_lines.append('titles_to_remove = []\n')  # placeholder empty list
@@ -426,26 +434,34 @@ def read_config():
 @app.route('/save_light_mode', methods=['POST'])
 def save_light_mode():
     data = request.json
-    # Save data['lightMode'] to user preferences or config
     light_mode = data.get('lightMode') or data.get('light_mode') or data.get('lightMode')
     if light_mode:
-        # Manually read the config.ini file lines
-        with open(config_ini_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        # Find the line with light_mode setting
-        for i, line in enumerate(lines):
-            if line.strip().startswith('light_mode'):
-                lines[i] = f'light_mode = {light_mode}\n'
-                break
-        else:
-            # If not found, add it under [Settings]
+        try:
+            # Check if config file exists, create if not
+            if not os.path.exists(config_ini_path):
+                create_default_config(config_ini_path)
+            
+            with open(config_ini_path, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            # Find the line with light_mode setting
             for i, line in enumerate(lines):
-                if line.strip() == '[Settings]':
-                    lines.insert(i+1, f'light_mode = {light_mode}\n')
+                if line.strip().startswith('light_mode'):
+                    lines[i] = f'light_mode = {light_mode}\n'
                     break
-        # Write back to config.ini
-        with open(config_ini_path, 'w', encoding='utf-8') as f:
-            f.writelines(lines)
+            else:
+                # If not found, add it under [Settings]
+                for i, line in enumerate(lines):
+                    if line.strip() == '[Settings]':
+                        lines.insert(i+1, f'light_mode = {light_mode}\n')
+                        break
+            
+            with open(config_ini_path, 'w', encoding='utf-8') as f:
+                f.writelines(lines)
+        except Exception as e:
+            logger.error(f"Error saving light mode: {e}")
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+    
     return jsonify({'status': 'success'})
 
 @app.route('/get_light_mode', methods=['GET'])
@@ -472,6 +488,10 @@ def save_titles():
     new_titles = data.get('titles', [])
     new_titles.sort(key=str.lower)  # Sort titles case-insensitively
     try:
+        # Check if config file exists, create if not
+        if not os.path.exists(config_ini_path):
+            create_default_config(config_ini_path)
+        
         # Manually read the config.ini file lines
         with open(config_ini_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()

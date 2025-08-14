@@ -1,0 +1,3 @@
+Launching GUI mode...
+ * Serving Flask app 'app'
+ * Debug mode: off

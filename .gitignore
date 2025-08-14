@@ -1,0 +1,36 @@
+# Build directories
+dist/
+build/
+obsoleto/
+vcf-contact-processor-pro/
+
+# Log files
+*.log
+NAO_APAGAR.log
+app_debug.log
+vcf_debug.log
+
+# Excel output files
+*.xlsx
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Archive files
+*.zip
+*.rar
+*.7z

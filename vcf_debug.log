@@ -1,0 +1,311 @@
+2025-08-13 10:05:05,237 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 10:05:05,237 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 10:05:11,886 - ERROR - Error initializing VCFProcessor: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    self.processed_numbers_log = self._read_log()
+                                 ~~~~~~~~~~~~~~^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:11,889 - ERROR - An error occurred during VCF processing: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\app.py", line 532, in process_dropped_vcf
+    processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    self.processed_numbers_log = self._read_log()
+                                 ~~~~~~~~~~~~~~^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:12,493 - ERROR - Error initializing VCFProcessor: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    self.processed_numbers_log = self._read_log()
+                                 ~~~~~~~~~~~~~~^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:12,494 - ERROR - An error occurred during VCF processing: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\app.py", line 532, in process_dropped_vcf
+    processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    self.processed_numbers_log = self._read_log()
+                                 ~~~~~~~~~~~~~~^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:41,090 - ERROR - Error initializing VCFProcessor: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:41,095 - ERROR - An error occurred during VCF processing: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\app.py", line 532, in process_dropped_vcf
+    processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:41,957 - ERROR - Error initializing VCFProcessor: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:41,958 - ERROR - An error occurred during VCF processing: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\app.py", line 532, in process_dropped_vcf
+    processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:43,750 - ERROR - Error initializing VCFProcessor: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:43,752 - ERROR - An error occurred during VCF processing: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\app.py", line 532, in process_dropped_vcf
+    processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:44,331 - ERROR - Error initializing VCFProcessor: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:44,333 - ERROR - An error occurred during VCF processing: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+Traceback (most recent call last):
+  File "Z:\vcf\app.py", line 532, in process_dropped_vcf
+    processor = VCFProcessor(log_file_path=log_path, titles_to_remove=TITLES_TO_REMOVE)
+  File "Z:\vcf\vcf_extractor.py", line 65, in __init__
+    print(f"Error reading VCF file: {e}")
+                                 ^^^^^^^^
+TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'file_path'
+2025-08-13 10:05:45,622 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 10:05:47,595 - DEBUG - Starting new HTTP connection (1): 12_0_0_1:5000
+2025-08-13 13:59:38,234 - INFO - Reading VCF file: Z:\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 13:59:38,238 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 13:59:38,238 - INFO - Processing 58 VCF blocks
+2025-08-13 13:59:38,243 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 13:59:38,244 - INFO - Reading VCF file: Z:\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 13:59:38,244 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 13:59:38,245 - INFO - Processing 58 VCF blocks
+2025-08-13 13:59:38,248 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 14:10:39,463 - INFO - Reading VCF file: Z:\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 14:10:39,464 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 14:10:39,464 - INFO - Processing 58 VCF blocks
+2025-08-13 14:10:39,468 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 14:10:39,469 - INFO - Reading VCF file: Z:\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 14:10:39,470 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 14:10:39,470 - INFO - Processing 58 VCF blocks
+2025-08-13 14:10:39,473 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 14:10:39,477 - INFO - Saving Excel file to: Z:\vcf\test_output_1.xlsx
+2025-08-13 14:10:39,758 - INFO - Excel file created successfully: Z:\vcf\test_output_1.xlsx (5007 bytes)
+2025-08-13 16:37:42,342 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:37:42,343 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:38:02,173 - INFO - Reading VCF file: \\Mac\Home\test_gui_from_cli\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:38:02,174 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:38:02,174 - INFO - Processing 58 VCF blocks
+2025-08-13 16:38:02,179 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:38:39,249 - INFO - Reprocessing 58 selected contacts
+2025-08-13 16:38:39,258 - INFO - Processing 58 total contacts
+2025-08-13 16:38:39,258 - INFO - Output base name: \\Mac\Home\test_gui_from_cli\vcf\alvinafbarboza
+2025-08-13 16:38:39,273 - INFO - Saving Excel file to: \\Mac\Home\test_gui_from_cli\vcf\alvinafbarboza_24.xlsx
+2025-08-13 16:38:39,459 - INFO - Excel file created successfully: \\Mac\Home\test_gui_from_cli\vcf\alvinafbarboza_24.xlsx (6100 bytes)
+2025-08-13 16:38:39,459 - INFO - Excel file created: \\Mac\Home\test_gui_from_cli\vcf\alvinafbarboza_24.xlsx
+2025-08-13 16:38:51,735 - INFO - Reading VCF file: C:\Mac\Home\Documents\Angelo Valerio Chitsotso and 3.592 others.vcf (Size: 7972376 bytes)
+2025-08-13 16:38:51,807 - INFO - VCF file read successfully with utf-8 encoding. Content length: 7849124
+2025-08-13 16:38:51,827 - INFO - Processing 3593 VCF blocks
+2025-08-13 16:38:52,393 - INFO - Successfully extracted 1522 contacts from VCF
+2025-08-13 16:38:59,336 - INFO - Reading VCF file: C:\Mac\Home\Documents\Angelo Valerio Chitsotso and 3.592 others.vcf (Size: 7972376 bytes)
+2025-08-13 16:38:59,408 - INFO - VCF file read successfully with utf-8 encoding. Content length: 7849124
+2025-08-13 16:38:59,427 - INFO - Processing 3593 VCF blocks
+2025-08-13 16:38:59,768 - INFO - Successfully extracted 1522 contacts from VCF
+2025-08-13 16:39:38,188 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:39:38,190 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:39:38,190 - INFO - Processing 58 VCF blocks
+2025-08-13 16:39:38,193 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:39:42,652 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:39:42,653 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:39:42,653 - INFO - Processing 58 VCF blocks
+2025-08-13 16:39:42,658 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:39:44,733 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:39:44,734 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:39:44,735 - INFO - Processing 58 VCF blocks
+2025-08-13 16:39:44,737 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:39:55,964 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:39:59,218 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:39:59,219 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:40:07,791 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:40:07,792 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:40:07,792 - INFO - Processing 58 VCF blocks
+2025-08-13 16:40:07,795 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:40:11,876 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:40:11,877 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:40:11,877 - INFO - Processing 58 VCF blocks
+2025-08-13 16:40:11,881 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:40:17,611 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:40:17,613 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:40:17,613 - INFO - Processing 58 VCF blocks
+2025-08-13 16:40:17,616 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:40:25,609 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:40:55,482 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:40:55,483 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:41:00,259 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:41:00,260 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:41:00,261 - INFO - Processing 58 VCF blocks
+2025-08-13 16:41:00,264 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:41:24,085 - INFO - Reprocessing 0 selected contacts
+2025-08-13 16:41:24,086 - INFO - Processing 6 total contacts
+2025-08-13 16:41:24,086 - INFO - Output base name: C:\Users\virgoh/Documents\Contatos_Colados
+2025-08-13 16:41:24,092 - INFO - Saving Excel file to: C:\Users\virgoh/Documents\Contatos_Colados_3.xlsx
+2025-08-13 16:41:24,282 - INFO - Excel file created successfully: C:\Users\virgoh/Documents\Contatos_Colados_3.xlsx (5061 bytes)
+2025-08-13 16:41:24,284 - INFO - Excel file created: C:\Users\virgoh/Documents\Contatos_Colados_3.xlsx
+2025-08-13 16:41:33,337 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:52:26,700 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:52:26,700 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:52:34,935 - INFO - Reprocessing 0 selected contacts
+2025-08-13 16:52:34,935 - INFO - Processing 20 total contacts
+2025-08-13 16:52:34,937 - INFO - Output base name: C:\Users\virgoh/Documents\Contatos_Colados
+2025-08-13 16:52:34,942 - INFO - Saving Excel file to: C:\Users\virgoh/Documents\Contatos_Colados_5.xlsx
+2025-08-13 16:52:35,116 - INFO - Excel file created successfully: C:\Users\virgoh/Documents\Contatos_Colados_5.xlsx (5349 bytes)
+2025-08-13 16:52:35,116 - INFO - Excel file created: C:\Users\virgoh/Documents\Contatos_Colados_5.xlsx
+2025-08-13 16:53:21,021 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:53:24,323 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:53:24,324 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:54:12,407 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:54:22,677 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:54:22,678 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:54:55,156 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:55:03,652 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:55:03,652 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:55:35,201 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:55:57,214 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:55:57,214 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:57:00,878 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 16:57:03,755 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 16:57:03,755 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 16:57:50,405 - INFO - Reprocessing 0 selected contacts
+2025-08-13 16:57:50,407 - INFO - Processing 0 total contacts
+2025-08-13 16:57:50,408 - INFO - Output base name: C:\Users\virgoh/Documents\Contatos_Colados
+2025-08-13 16:57:50,408 - ERROR - Failed to create Excel file
+2025-08-13 16:57:54,057 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:57:54,058 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:57:54,058 - INFO - Processing 58 VCF blocks
+2025-08-13 16:57:54,061 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:57:56,926 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:57:56,928 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:57:56,928 - INFO - Processing 58 VCF blocks
+2025-08-13 16:57:56,930 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 16:57:59,161 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 16:57:59,162 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 16:57:59,162 - INFO - Processing 58 VCF blocks
+2025-08-13 16:57:59,164 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 17:01:33,255 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:01:37,095 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:01:37,095 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:03:08,949 - INFO - Reprocessing 20 selected contacts
+2025-08-13 17:03:08,960 - INFO - Processing 20 total contacts
+2025-08-13 17:03:08,960 - INFO - Output base name: C:\Users\virgoh/Documents\Contatos_Colados
+2025-08-13 17:03:08,968 - INFO - Saving Excel file to: C:\Users\virgoh/Documents\Contatos_Colados_6.xlsx
+2025-08-13 17:03:09,155 - INFO - Excel file created successfully: C:\Users\virgoh/Documents\Contatos_Colados_6.xlsx (5349 bytes)
+2025-08-13 17:03:09,155 - INFO - Excel file created: C:\Users\virgoh/Documents\Contatos_Colados_6.xlsx
+2025-08-13 17:03:44,126 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:03:47,942 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:03:47,943 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:03:56,378 - INFO - Reading VCF file: \\Mac\Home\vcf\alvinafbarboza.vcf (Size: 8645 bytes)
+2025-08-13 17:03:56,379 - INFO - VCF file read successfully with utf-8 encoding. Content length: 8528
+2025-08-13 17:03:56,380 - INFO - Processing 58 VCF blocks
+2025-08-13 17:03:56,384 - INFO - Successfully extracted 58 contacts from VCF
+2025-08-13 17:05:36,075 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:05:40,675 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:05:40,676 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:07:24,516 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:07:27,708 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:07:27,708 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:08:07,757 - INFO - Reprocessing 20 selected contacts
+2025-08-13 17:08:07,764 - INFO - Processing 20 total contacts
+2025-08-13 17:08:07,765 - INFO - Output base name: C:\Users\virgoh/Documents\Contatos_Colados
+2025-08-13 17:08:07,775 - INFO - Saving Excel file to: C:\Users\virgoh/Documents\Contatos_Colados_7.xlsx
+2025-08-13 17:08:07,941 - INFO - Excel file created successfully: C:\Users\virgoh/Documents\Contatos_Colados_7.xlsx (5349 bytes)
+2025-08-13 17:08:07,942 - INFO - Excel file created: C:\Users\virgoh/Documents\Contatos_Colados_7.xlsx
+2025-08-13 17:08:56,599 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:09:16,673 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:09:16,673 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:10:09,579 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:10:17,637 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:10:17,638 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:11:29,242 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:11:32,260 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:11:32,260 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:12:45,525 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:12:50,314 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:12:50,314 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:13:52,287 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:13:55,248 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:13:55,249 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:15:15,653 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:15:18,723 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:15:18,724 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:15:27,621 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:15:30,854 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:15:30,855 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:16:16,860 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:16:22,644 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:16:22,645 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:17:29,643 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:17:33,243 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:17:33,244 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:18:54,114 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:18:58,953 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:18:58,953 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:20:11,478 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:20:17,290 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:20:17,291 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:21:10,349 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:21:16,855 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:21:16,856 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:22:31,034 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:22:34,069 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:22:34,069 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:24:12,583 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-13 17:24:16,275 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-13 17:24:16,275 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-13 17:24:58,686 - INFO - Reprocessing 18 selected contacts
+2025-08-13 17:24:58,695 - INFO - Processing 18 total contacts
+2025-08-13 17:24:58,696 - INFO - Output base name: C:\Users\virgoh/Documents\Contatos_Colados
+2025-08-13 17:24:58,707 - INFO - Saving Excel file to: C:\Users\virgoh/Documents\Contatos_Colados_8.xlsx
+2025-08-13 17:24:59,052 - INFO - Excel file created successfully: C:\Users\virgoh/Documents\Contatos_Colados_8.xlsx (5312 bytes)
+2025-08-13 17:24:59,053 - INFO - Excel file created: C:\Users\virgoh/Documents\Contatos_Colados_8.xlsx
+2025-08-13 17:25:04,034 - INFO - Webview window closed. Shutting down Flask server.

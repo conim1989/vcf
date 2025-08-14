@@ -1,0 +1,18 @@
+python app.py
+Traceback (most recent call last):
+  File "Z:\vcf\app.py", line 53, in <module>
+    LIGHT_MODE_DEFAULT, TITLES_TO_REMOVE = read_titles_from_config_ini()
+                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "Z:\vcf\vcf_extractor.py", line 43, in read_titles_from_config_ini
+    config.read(config_ini_path)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\virgoh\AppData\Local\Programs\Python\Python313\Lib\configparser.py", line 735, in read
+    self._read(fp, filename)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\virgoh\AppData\Local\Programs\Python\Python313\Lib\configparser.py", line 1050, in _read
+    ParsingError._raise_all(self._read_inner(fp, fpname))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\virgoh\AppData\Local\Programs\Python\Python313\Lib\configparser.py", line 334, in _raise_all
+    raise next(exceptions).combine(exceptions)
+configparser.ParsingError: Source contains parsing errors: 'Z:\\vcf\\config.ini'
+        [line 95]: ']\n'
