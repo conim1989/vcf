@@ -309,3 +309,11 @@ TypeError: VCFProcessor._read_log() missing 1 required positional argument: 'fil
 2025-08-13 17:24:59,052 - INFO - Excel file created successfully: C:\Users\virgoh/Documents\Contatos_Colados_8.xlsx (5312 bytes)
 2025-08-13 17:24:59,053 - INFO - Excel file created: C:\Users\virgoh/Documents\Contatos_Colados_8.xlsx
 2025-08-13 17:25:04,034 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-14 11:08:23,836 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-14 11:08:23,837 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-14 11:12:15,428 - INFO - Webview window closed. Shutting down Flask server.
+2025-08-14 11:12:18,990 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-14 11:12:18,990 - INFO - [33mPress CTRL+C to quit[0m
+2025-08-14 11:14:26,680 - INFO - Webview window closed. Shutting down Flask server.

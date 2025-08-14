@@ -20,6 +20,27 @@
         }
         .button-container { cursor: pointer; }
         .config-gear { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--gold-color); font-size: 20px; cursor: pointer; z-index: 1000; }
+        
+        /* Flash animations */
+        @keyframes successFlash {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(0, 255, 0, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .success-flash {
+            animation: successFlash 0.8s ease-in-out;
+        }
+        
+        .error-shake {
+            animation: errorShake 0.6s ease-in-out;
+        }
         .duplicate-item { display: flex; align-items: center; padding: 5px; border-bottom: 1px solid #eee; }
         #title-manager { margin-top: 20px; }
         #filtered-titles-list { list-style: none; padding: 0; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 10px; }
@@ -113,7 +134,7 @@
             <input type="text" id="search-titles-input" placeholder="Buscar títulos..." class="input-style-adv" style="margin-bottom: 10px;">
             <ul id="filtered-titles-list" style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;"></ul>
             <div class="input-field-adv">
-        <input type="text" id="new-title-input" placeholder="Adicionar um título para filtrar..." class="input-style-adv" autofocus>
+        <textarea id="new-title-input" placeholder="Adicionar títulos (separados por vírgula ou nova linha)..." class="input-style-adv" rows="3" autofocus></textarea>
         <div class="button-container-adv"><button type="button" id="add-title-btn" class="button-adv">+</button></div>
             </div>
         </div>
@@ -123,7 +144,14 @@
             <div id="view-log-file" class="button-container-adv">
                 <button type="button" id="view-log-btn" class="button-adv">Ver Lista</button>
             </div>
-
+        </div>
+        <hr>
+        <div id="update-manager" style="margin-top: 20px;">
+            <h4 class="h4">Atualizações</h4>
+            <div class="button-container-adv">
+                <button type="button" id="check-updates-btn" class="button-adv">Verificar Atualizações</button>
+            </div>
+            <div id="update-status" style="margin-top: 10px; color: var(--gold-color); font-size: 0.9em;"></div>
         </div>
     </div>
 </div>
@@ -264,6 +292,8 @@ if (lightMode === 'static') updateLightPosition();
     const browseVcfBtn = document.getElementById('browse-vcf-btn');
     const configGearBtn = document.getElementById('config-gear-btn');
     const inputModeSelector = document.getElementById('input-mode-selector');
+    const checkUpdatesBtn = document.getElementById('check-updates-btn');
+    const updateStatus = document.getElementById('update-status');
     const closeBtn = document.getElementById('close-btn');
     const minimizeBtn = document.getElementById('minimize-btn');
     const titlebar = document.getElementById('titlebar');
@@ -310,6 +340,20 @@ if (lightMode === 'static') updateLightPosition();
         }
     }
 
+    function showSuccessFlash() {
+        document.body.classList.add('success-flash');
+        setTimeout(() => {
+            document.body.classList.remove('success-flash');
+        }, 800);
+    }
+    
+    function showErrorShake() {
+        document.body.classList.add('error-shake');
+        setTimeout(() => {
+            document.body.classList.remove('error-shake');
+        }, 600);
+    }
+
     async function continueProcessing(selected_duplicates) {
         setState({ isProcessing: true, duplicates: [], logMessages: [] }); // Clear duplicates, start processing state, clear logs
         logMessage(`Continuando com ${selected_duplicates.length} duplicatas selecionadas...`);
@@ -322,14 +366,17 @@ if (lightMode === 'static') updateLightPosition();
             if (response.ok) {
                  if (data.output_file && data.output_file !== "None") {
                     logMessage(`<strong>${data.message}</strong> Arquivo de saída: <a href="#" class="output-link" data-path="${data.output_file}">${data.output_file}</a>`);
+                    showSuccessFlash();
                 } else {
                     logMessage(`<strong>${data.message}</strong> Nenhum arquivo de saída foi criado.`);
+                    showErrorShake();
                 }
             } else {
                 throw new Error(data.error || 'An unknown server error occurred.');
             }
         } catch (error) {
              logMessage(`Erro: ${error.message}`); // Log error via state
+             showErrorShake();
         } finally {
              setState({ isProcessing: false, duplicates: [] }); // End processing, clear duplicates
         }
@@ -378,6 +425,7 @@ if (lightMode === 'static') updateLightPosition();
                 // Handle auto-processed files (exe mode)
                 if (data.output_file && data.output_file !== "None") {
                     logMessage(`<strong>${data.message || 'Processing complete!'}</strong> Arquivo de saída: <a href="#" class="output-link" data-path="${data.output_file}">${data.output_file}</a>`);
+                    showSuccessFlash();
                     setState({ isLoading: false, isProcessing: false, duplicates: [], vcfPath: '', error: null });
                 } else if (data.duplicates && data.duplicates.length > 0) {
                     showDuplicateSelector(data.duplicates);
@@ -385,6 +433,7 @@ if (lightMode === 'static') updateLightPosition();
                     updateSubmitButtonText();
                 } else {
                     logMessage("Nenhuma duplicata encontrada. Processamento concluído.");
+                    showErrorShake();
                     setState({ isLoading: false, isProcessing: false, duplicates: [], vcfPath: '', error: null });
                 }
             } else {
@@ -395,6 +444,7 @@ if (lightMode === 'static') updateLightPosition();
         } catch (error) {
             // Handle network or other fetch errors
             logMessage(`Erro ao processar arquivo: ${error.message}`); // Log error via state
+            showErrorShake();
             setState({ isLoading: false }); // End loading state on error
         }
     }
@@ -426,6 +476,7 @@ if (lightMode === 'static') updateLightPosition();
         browseVcfBtn.disabled = state.isLoading || state.isProcessing;
         addTitleBtn.disabled = state.isLoading || state.isProcessing;
         viewLogBtn.disabled = state.isLoading || state.isProcessing;
+        if (checkUpdatesBtn) checkUpdatesBtn.disabled = state.isLoading || state.isProcessing;
         newTitleInput.disabled = state.isLoading || state.isProcessing;
         if (searchTitlesInput) searchTitlesInput.disabled = state.isLoading || state.isProcessing;
 
@@ -609,24 +660,37 @@ if (lightMode === 'static') updateLightPosition();
         });
 
         addTitleBtn.addEventListener('click', () => {
-            const newTitle = newTitleInput.value.trim();
-            if (newTitle && !state.filteredTitles.includes(newTitle)) { // Prevent adding duplicates
-                setState({ filteredTitles: [...state.filteredTitles, newTitle] });
-                newTitleInput.value = '';
-                saveTitles();
+            const input = newTitleInput.value.trim();
+            if (input) {
+                // Split by newlines and commas, then clean up
+                const newTitles = input.split(/[\n,]+/)
+                    .map(title => title.trim())
+                    .filter(title => title && !state.filteredTitles.includes(title));
+                
+                if (newTitles.length > 0) {
+                    setState({ filteredTitles: [...state.filteredTitles, ...newTitles] });
+                    newTitleInput.value = '';
+                    saveTitles();
+                }
             }
         });
 
         newTitleInput.addEventListener('keypress', async (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const newTitle = newTitleInput.value.trim();
-                if (newTitle && !state.filteredTitles.includes(newTitle)) {
-                    setState({ filteredTitles: [...state.filteredTitles, newTitle] });
-                    newTitleInput.value = '';
-                    await saveTitles();
-                    newTitleInput.focus();
-                    newTitleInput.select();
+                const input = newTitleInput.value.trim();
+                if (input) {
+                    const newTitles = input.split(/[\n,]+/)
+                        .map(title => title.trim())
+                        .filter(title => title && !state.filteredTitles.includes(title));
+                    
+                    if (newTitles.length > 0) {
+                        setState({ filteredTitles: [...state.filteredTitles, ...newTitles] });
+                        newTitleInput.value = '';
+                        await saveTitles();
+                        newTitleInput.focus();
+                        newTitleInput.select();
+                    }
                 }
             }
         });
@@ -834,6 +898,7 @@ if (lightMode === 'static') updateLightPosition();
                 }
             } catch (error) {
                 logMessage(`Erro: ${error.message}`);
+                showErrorShake();
                 textContentArea.removeAttribute('readonly');
             } finally {
                 setState({ isLoading: false });
@@ -844,6 +909,31 @@ if (lightMode === 'static') updateLightPosition();
         viewLogBtn.addEventListener('click', async () => {
             window.pywebview.api.open_log_file_with_notepad();
         });
+
+        // Check for updates
+        if (checkUpdatesBtn) {
+            checkUpdatesBtn.addEventListener('click', async () => {
+            checkUpdatesBtn.disabled = true;
+            checkUpdatesBtn.textContent = 'Verificando...';
+            updateStatus.textContent = '';
+            
+            try {
+                const response = await fetch('/check_updates');
+                const data = await response.json();
+                
+                if (data.update_available) {
+                    updateStatus.innerHTML = `Nova versão ${data.version} disponível!<br><a href="#" onclick="window.pywebview.api.open_file_path('${data.download_url}')">Baixar Atualização</a>`;
+                } else {
+                    updateStatus.textContent = 'Você está usando a versão mais recente.';
+                }
+            } catch (error) {
+                updateStatus.textContent = 'Erro ao verificar atualizações.';
+            } finally {
+                checkUpdatesBtn.disabled = false;
+                checkUpdatesBtn.textContent = 'Verificar Atualizações';
+            }
+            });
+        }
 
         // Event Delegation for log output links
         logArea.addEventListener('click', (e) => {

@@ -393,6 +393,14 @@ class Api:
                 subprocess.run(["xdg-open", path])
         except Exception as e:
             print(f"Failed to open file: {e}")
+    
+    def check_for_updates(self):
+        """Check for app updates"""
+        try:
+            from updater import check_for_updates
+            return check_for_updates()
+        except ImportError:
+            return {"update_available": False, "error": "Updater not available"}
 
 api = Api()
 
@@ -469,6 +477,16 @@ def get_light_mode():
     # Load light mode preference
     light_mode = read_config_ini()[0]
     return jsonify({'lightMode': light_mode})
+
+@app.route('/check_updates', methods=['GET'])
+def check_updates():
+    """Check for application updates"""
+    try:
+        from updater import check_for_updates
+        update_info = check_for_updates()
+        return jsonify(update_info)
+    except Exception as e:
+        return jsonify({"update_available": False, "error": str(e)})
 
 
 @app.route('/get_titles', methods=['GET'])
