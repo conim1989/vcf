@@ -9,9 +9,35 @@ vcf-contact-processor-pro/
 NAO_APAGAR.log
 app_debug.log
 vcf_debug.log
+test_processing.log
 
-# Excel output files
+# Test and sensitive files
+*.vcf
+*.txt
 *.xlsx
+test*.py
+contatos*
+alvina*
+
+# Backup and old files
+*_backup*
+*_original*
+*_copy*
+*_organized*
+app_original.py
+vcf_extractor_original.py
+exe_fix.py
+
+# Build specs (keep only main ones)
+build_fixed*
+
+# Documentation that's not needed
+*.md
+RESTORE_*
+VCF_PROCESSING_*
+
+# Config files with sensitive data
+config.ini
 
 # Python cache
 __pycache__/

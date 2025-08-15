@@ -1,0 +1,12 @@
+[Settings]
+light_mode = follow
+
+[Titles]
+titles_to_remove = [
+    "Dr",
+    "Dra",
+    "Prof",
+    "Eng",
+    "Sr",
+    "Sra",
+]
