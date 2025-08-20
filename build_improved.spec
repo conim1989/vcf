@@ -18,6 +18,8 @@ a = Analysis(
         ('templates', 'templates'),
         ('vcf_extractor.py', '.'),
         ('config.py', '.'),
+        ('updater.py', '.'),
+        ('installer.py', '.'),
     ],
     
     # Comprehensive hidden imports for VCF processing
@@ -80,6 +82,10 @@ a = Analysis(
         'webview.dom',
         'webview.js',
         'webview.util',
+        
+        # Installer dependencies
+        'win32com.client',
+        'winreg',
     ],
     
     hookspath=[],

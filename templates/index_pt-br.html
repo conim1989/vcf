@@ -63,7 +63,7 @@
         </div>
     </div>
     <div class="main-wrapper">
-        <button class="config-gear" id="config-gear-btn" title="Configurações">⚙️</button>
+        <button class="config-gear" id="config-gear-btn" title="Configurações"></button>
         <div class="container" id="vcf-container">
         <h1>{{ window_title }}</h1>
         <div id="duplicate-selection-1" style="display: none; color: var(--2-color); font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Estes contatos já estão no registro. Selecione quais você deseja reprocessar.</div>
@@ -118,6 +118,11 @@
 
 </div>
 <div id="advanced-panel">
+    <div id="panel-tab">
+    <img src="static/wheel.svg" alt="Settings">
+</div>
+
+
     <div id="advanced-panel-content" class="advanced-panel">
         <h3 class="h3">Configurações</h3>
             <div id="light-mode-toggle">
@@ -178,97 +183,97 @@
     };
 
 
-let lightMode = 'follow'; // 'static' or 'follow'
-let currentLightX = window.innerWidth / 2;
-let currentLightY = window.innerHeight / 2;
-let targetLightX = currentLightX;
-let targetLightY = currentLightY;
+    let lightMode = 'follow'; // 'static' or 'follow'
+    let currentLightX = window.innerWidth / 2;
+    let currentLightY = window.innerHeight / 2;
+    let targetLightX = currentLightX;
+    let targetLightY = currentLightY;
 
-// On change, save preference
-document.getElementById('lightModeSwitch').addEventListener('change', () => {
-    lightMode = document.getElementById('lightModeSwitch').checked ? 'follow' : 'static';
-    updateLightPosition();
-    fetch('/save_light_mode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lightMode })
+    // On change, save preference
+    document.getElementById('lightModeSwitch').addEventListener('change', () => {
+        lightMode = document.getElementById('lightModeSwitch').checked ? 'follow' : 'static';
+        updateLightPosition();
+        fetch('/save_light_mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lightMode })
+        });
     });
-});
 
 
 
-document.addEventListener('mousemove', (e) => {
-    if (lightMode === 'follow') {
-        targetLightX = e.clientX;
-        targetLightY = e.clientY;
-    }
-});
+    document.addEventListener('mousemove', (e) => {
+        if (lightMode === 'follow') {
+            targetLightX = e.clientX;
+            targetLightY = e.clientY;
+        }
+    });
 
-let lastUpdateTime = 0;
-const updateInterval = 16; // ~60fps
+    let lastUpdateTime = 0;
+    const updateInterval = 16; // ~60fps
 
-function updateShadows(timestamp) {
-    if (timestamp - lastUpdateTime < updateInterval) {
-        requestAnimationFrame(updateShadows);
-        return;
-    }
-    lastUpdateTime = timestamp;
-    
-    // Smooth interpolation (lerp) for stability
-    const lerp = 0.1;
-    const prevX = currentLightX;
-    const prevY = currentLightY;
-    currentLightX += (targetLightX - currentLightX) * lerp;
-    currentLightY += (targetLightY - currentLightY) * lerp;
-    
-    // Only update if movement is significant (>1px)
-    const deltaX = Math.abs(currentLightX - prevX);
-    const deltaY = Math.abs(currentLightY - prevY);
-    
-    if (deltaX > 1 || deltaY > 1) {
-        let light = document.querySelector('.light');
-        if (!light) {
-            light = document.createElement('div');
-            light.className = 'light';
-            document.body.appendChild(light);
+    function updateShadows(timestamp) {
+        if (timestamp - lastUpdateTime < updateInterval) {
+            requestAnimationFrame(updateShadows);
+            return;
+        }
+        lastUpdateTime = timestamp;
+        
+        // Smooth interpolation (lerp) for stability
+        const lerp = 0.1;
+        const prevX = currentLightX;
+        const prevY = currentLightY;
+        currentLightX += (targetLightX - currentLightX) * lerp;
+        currentLightY += (targetLightY - currentLightY) * lerp;
+        
+        // Only update if movement is significant (>1px)
+        const deltaX = Math.abs(currentLightX - prevX);
+        const deltaY = Math.abs(currentLightY - prevY);
+        
+        if (deltaX > 1 || deltaY > 1) {
+            let light = document.querySelector('.light');
+            if (!light) {
+                light = document.createElement('div');
+                light.className = 'light';
+                document.body.appendChild(light);
+            }
+            
+            light.style.left = `${currentLightX}px`;
+            light.style.top = `${currentLightY}px`;
+            
+            // Only update shadows for visible elements
+            const visibleElements = document.querySelectorAll('.input-style, .advanced-panel, h1, h3, h4, label');
+            visibleElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const dx = centerX - currentLightX;
+                const dy = centerY - currentLightY;
+                const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 50); // Minimum distance of 50px
+                const offsetX = Math.min(Math.max((dx / dist) * 2, -3), 3); // Clamp between -3 and 3
+                const offsetY = Math.min(Math.max((dy / dist) * 2, -3), 3); // Clamp between -3 and 3
+                el.style.textShadow = `${offsetX}px ${offsetY}px 5px rgba(0,0,0,0.5)`;
+                if(el.classList.contains('input-style') || el.classList.contains('advanced-panel')) {
+                    el.style.boxShadow = `${offsetX}px ${offsetY}px 10px rgba(0,0,0,0.3)`;
+                }
+            });
         }
         
-        light.style.left = `${currentLightX}px`;
-        light.style.top = `${currentLightY}px`;
-        
-        // Only update shadows for visible elements
-        const visibleElements = document.querySelectorAll('.input-style, .advanced-panel, h1, h3, h4, label');
-        visibleElements.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            const dx = centerX - currentLightX;
-            const dy = centerY - currentLightY;
-            const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 50); // Minimum distance of 50px
-            const offsetX = Math.min(Math.max((dx / dist) * 2, -3), 3); // Clamp between -3 and 3
-            const offsetY = Math.min(Math.max((dy / dist) * 2, -3), 3); // Clamp between -3 and 3
-            el.style.textShadow = `${offsetX}px ${offsetY}px 5px rgba(0,0,0,0.5)`;
-            if(el.classList.contains('input-style') || el.classList.contains('advanced-panel')) {
-                el.style.boxShadow = `${offsetX}px ${offsetY}px 10px rgba(0,0,0,0.3)`;
-            }
-        });
+        requestAnimationFrame(updateShadows);
     }
-    
+
+    // Start the smooth animation loop
     requestAnimationFrame(updateShadows);
-}
 
-// Start the smooth animation loop
-requestAnimationFrame(updateShadows);
-
-// For static mode:
-function updateLightPosition() {
-    if (lightMode === 'static') {
-        targetLightX = window.innerWidth / 2;
-        targetLightY = window.innerHeight / 2;
+    // For static mode:
+    function updateLightPosition() {
+        if (lightMode === 'static') {
+            targetLightX = window.innerWidth / 2;
+            targetLightY = window.innerHeight / 2;
+        }
     }
-}
-// Call updateLightPosition initially for static mode if needed
-if (lightMode === 'static') updateLightPosition();
+    // Call updateLightPosition initially for static mode if needed
+    if (lightMode === 'static') updateLightPosition();
 
     // --- Global State & Element References ---
     const vcfPathInput = document.getElementById('vcf-path');
@@ -422,7 +427,7 @@ if (lightMode === 'static') updateLightPosition();
             const data = await response.json();
 
             if (response.ok) {
-                // Handle auto-processed files (exe mode)
+                // Handle auto-processed files when no duplicates found
                 if (data.output_file && data.output_file !== "None") {
                     logMessage(`<strong>${data.message || 'Processing complete!'}</strong> Arquivo de saída: <a href="#" class="output-link" data-path="${data.output_file}">${data.output_file}</a>`);
                     showSuccessFlash();
@@ -433,7 +438,7 @@ if (lightMode === 'static') updateLightPosition();
                     updateSubmitButtonText();
                 } else {
                     logMessage("Nenhuma duplicata encontrada. Processamento concluído.");
-                    showErrorShake();
+                    showSuccessFlash();
                     setState({ isLoading: false, isProcessing: false, duplicates: [], vcfPath: '', error: null });
                 }
             } else {
@@ -872,7 +877,7 @@ if (lightMode === 'static') updateLightPosition();
             handleVcfPathReady(state.vcfPath);
         });
 
-        // <<< NOVO >>> Event listener para o novo botão de processar texto
+        // <<< THIS IS THE CORRECTED AND COMPLETE EVENT LISTENER >>>
         startTextBtn.addEventListener('click', async () => {
             const textContent = textContentArea.value.trim();
             if (!textContent) {
@@ -890,16 +895,23 @@ if (lightMode === 'static') updateLightPosition();
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || "Erro desconhecido no servidor.");
 
-                if (data.duplicates && data.duplicates.length > 0) {
+                // CORRECTED LOGIC: Check if the backend already finished and sent a file link.
+                if (data.output_file && data.output_file !== "None") {
+                    // SUCCESS CASE (NO DUPLICATES): The process is complete. Just display the result.
+                    logMessage(`<strong>${data.message}</strong> Arquivo de saída: <a href="#" class="output-link" data-path="${data.output_file}">${data.output_file}</a>`);
+                    showSuccessFlash();
+                    textContentArea.value = ''; // Clear the text area on success
+                } else if (data.duplicates && data.duplicates.length > 0) {
+                    // DUPLICATE CASE: The process is paused. Show the user the duplicate selection screen.
                     showDuplicateSelector(data.duplicates);
                 } else {
-                    logMessage("Nenhuma duplicata encontrada. Processando contatos únicos...");
-                    await continueProcessing([]); // Processa apenas os únicos
+                    // FALLBACK: Should not happen often, but handles cases where there's no file and no duplicates.
+                    logMessage(data.message || "Processamento concluído, mas nenhum arquivo foi gerado.");
                 }
+
             } catch (error) {
                 logMessage(`Erro: ${error.message}`);
                 showErrorShake();
-                textContentArea.removeAttribute('readonly');
             } finally {
                 setState({ isLoading: false });
             }
@@ -947,6 +959,10 @@ if (lightMode === 'static') updateLightPosition();
         });
 
         configGearBtn.addEventListener('click', (e) => { e.preventDefault(); setState({ showAdvanced: !state.showAdvanced }); }); // Toggle advanced state
+        
+        // Panel tab click handler
+        const panelTab = document.getElementById('panel-tab');
+        panelTab.addEventListener('click', (e) => { e.preventDefault(); setState({ showAdvanced: !state.showAdvanced }); });
 
         // Make button containers clickable
         document.addEventListener('click', (e) => {
@@ -960,37 +976,35 @@ if (lightMode === 'static') updateLightPosition();
         minimizeBtn.addEventListener('click', () => window.pywebview.api.minimize_window());
 
         titlebar.addEventListener('mousedown', (e) => {
-    if (e.button !== 0 || e.target.closest('.window-controls')) return;
-    e.preventDefault();
-    const dragOffsetX = e.screenX - window.screenX;
-    const dragOffsetY = e.screenY - window.screenY;
-    // Disable light follow during drag
-    const originalLightMode = lightMode;
-    lightMode = 'static';
-    updateLightPosition(); // Force static position during drag
+            if (e.button !== 0 || e.target.closest('.window-controls')) return;
+            e.preventDefault();
+            const dragOffsetX = e.screenX - window.screenX;
+            const dragOffsetY = e.screenY - window.screenY;
+            // Disable light follow during drag
+            const originalLightMode = lightMode;
+            lightMode = 'static';
+            updateLightPosition(); // Force static position during drag
 
-    const onMouseMove = (ev) => window.pywebview.api.set_window_position(ev.screenX - dragOffsetX, ev.screenY - dragOffsetY);
-    const onMouseUp = () => {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        // Restore original light mode after drag ends
-        lightMode = originalLightMode;
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-});
+            const onMouseMove = (ev) => window.pywebview.api.set_window_position(ev.screenX - dragOffsetX, ev.screenY - dragOffsetY);
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                // Restore original light mode after drag ends
+                lightMode = originalLightMode;
+            };
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
 
-         // Click outside to close advanced panel
+        // Click outside to close advanced panel
         document.addEventListener('mousedown', (e) => {
             const panel = document.getElementById('advanced-panel');
             const toggle = document.getElementById('config-gear-btn');
-            if (state.showAdvanced && !panel.contains(e.target) && !toggle.contains(e.target)) { // Check state
+            const panelTab = document.getElementById('panel-tab');
+            if (state.showAdvanced && !panel.contains(e.target) && !toggle.contains(e.target) && !panelTab.contains(e.target)) { // Check state
                 setState({ showAdvanced: false }); // Update state
             }
         });
-
-
-
 
         // Corrected Auto-Start Logic
         const initialDuplicatesData = JSON.parse('{{ initial_duplicates | safe }}');

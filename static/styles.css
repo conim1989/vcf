@@ -49,6 +49,63 @@ body::before {
 .container > * { position: relative; }
 #advanced-panel { position: fixed; top: var(--titlebar-height); height: calc(100% - var(--titlebar-height)); right: 0; width: var(--panel-width); transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 20; background-color: var(--5-color); border-radius: 10px; }
 #advanced-panel.visible { transform: translateX(0); }
+#panel-tab {
+    position: absolute;
+    left: -27px;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    width: 30px;
+    height: 60px;
+    background: var(--5-color);
+    border-radius: 10px 0 0 10px;
+    cursor: pointer;
+    transition: transform 00.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#panel-tab:hover {
+    transform: translateY(-50%) scale(1.3);
+}
+
+
+
+
+
+#panel-tab img {
+    width: calc(100% - 5px);
+    height: calc(100% - 5px);
+}
+
+#panel-tab:hover img {
+    animation: spin-forward .5s ease-out 1;
+}
+
+#panel-tab:active img {
+    animation: spin-backward 1s ease-out 1;
+}
+
+@keyframes spin-forward {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(140deg);
+    }
+}
+
+@keyframes spin-backward {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+
+
 #advanced-panel-content { width: 100%; height: 100%; box-sizing: border-box; background-color: var(--5-color); border-radius: 12px; overflow-y: auto; padding: 15px; }
 .input-field-adv { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: center; margin: 20px 0; padding: 20px; position: relative; color: var(--gold-color);}
 .input-field-adv[draggable="true"] { cursor: grab; } .input-field[draggable="true"]:active { cursor: grabbing; }
