@@ -3,6 +3,10 @@ dist/
 build/
 obsoleto/
 vcf-contact-processor-pro/
+VCF_Processor_Release_*/
+VCF_Processor_Fast/
+VCF_Processor_Fixed/
+VCF_Processor_Installer/
 
 # Log files
 *.log

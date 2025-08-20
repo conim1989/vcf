@@ -9,6 +9,13 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = False
 import time
 
+# <<< THE ONLY FIX YOU NEED IS HERE >>>
+# By explicitly importing the Edge Chromium renderer, we force PyInstaller to
+# find and bundle the correct libraries for a modern Windows experience.
+# This avoids the pythonnet/clr error and supports modern CSS/JS.
+if sys.platform == 'win32':
+    import webview.platforms.edgechromium
+
 # Version for update checking
 APP_VERSION = "2.6.0"
 
@@ -280,7 +287,6 @@ api = Api()
 
 # --- Centralized Processing Logic ---
 def process_vcf_file_logic(vcf_path):
-    """Shared logic for processing a VCF file from any source."""
     if not vcf_path or not os.path.isfile(vcf_path):
         return jsonify({"error": "Caminho do arquivo VCF é inválido ou não encontrado."}), 400
     try:
@@ -531,8 +537,6 @@ if __name__ == '__main__':
                 output_dir = os.path.dirname(abs_input_path)
                 base_name = os.path.splitext(os.path.basename(abs_input_path))[0]
                 output_file = processor.process_and_save(unique_contacts, output_dir, base_name)
-                # <<< THE FINAL FIX IS HERE >>>
-                # Replace the crashing print() with a safe logging call
                 logging.info(f"Headless processing complete. Output: {output_file or 'None'}")
                 headless_mode_successful = True
             else:
@@ -547,7 +551,6 @@ if __name__ == '__main__':
              logging.error(f"An error occurred during initial headless processing: {e}", exc_info=True)
              initial_data_for_ui['vcf_path'] = initial_file_path
     
-    # This block now correctly determines whether to launch the GUI
     if not headless_mode_successful:
         print("Launching GUI mode...")
         api_instance = Api()
