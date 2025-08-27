@@ -9,12 +9,12 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = False
 import time
 
-# <<< THE ONLY FIX YOU NEED IS HERE >>>
-# By explicitly importing the Edge Chromium renderer, we force PyInstaller to
-# find and bundle the correct libraries for a modern Windows experience.
-# This avoids the pythonnet/clr error and supports modern CSS/JS.
+# Import for Windows API interaction for resizing frameless window
 if sys.platform == 'win32':
+    import ctypes
+    from ctypes import wintypes
     import webview.platforms.edgechromium
+
 
 # Version for update checking
 APP_VERSION = "2.6.0"
@@ -256,16 +256,85 @@ def on_window_closed():
         os._exit(0)
 
 class Api:
-    def __init__(self): self._window = None
-    def set_window(self, window): self._window = window
+    def __init__(self):
+        self._window = None
+        # <<< NOVO >>> Store initial size for reset
+        self.initial_width = 800
+        self.initial_height = 750
+
+    def set_window(self, window):
+        self._window = window
+
     def select_file(self):
         file_paths = self._window.create_file_dialog(webview.OPEN_DIALOG, allow_multiple=False, file_types=('VCF Files (*.vcf)',))
         return file_paths[0] if file_paths else None
-    def close_window(self): self._window.destroy()
-    def minimize_window(self): self._window.minimize()
-    def set_window_position(self, x, y): self._window.move(x, y)
+
+    def close_window(self):
+        self._window.destroy()
+
+    def minimize_window(self):
+        self._window.minimize()
+
+    def set_window_position(self, x, y):
+        self._window.move(x, y)
+
+    # <<< NOVO >>> Function to resize window programmatically
+    def resize_window(self, width_delta, height_delta):
+        if self._window:
+            new_width = self._window.width + width_delta
+            new_height = self._window.height + height_delta
+            self._window.resize(new_width, new_height)
+
+    # <<< NOVO >>> Function to reset window to its original size
+    def reset_window_size(self):
+        if self._window:
+            self._window.resize(self.initial_width, self.initial_height)
+
+    # <<< NOVO >>> Function to handle drag-to-resize on frameless window (Windows ONLY)
+    def start_window_resize(self, edge):
+        if sys.platform != 'win32' or not self._window:
+            return
+
+        # Win32 API constants for window resizing
+        WM_NCLBUTTONDOWN = 0x00A1
+        HTCAPTION = 2
+        HTTOP = 12
+        HTBOTTOM = 15
+        HTLEFT = 10
+        HTRIGHT = 11
+        HTTOPLEFT = 13
+        HTTOPRIGHT = 14
+        HTBOTTOMLEFT = 16
+        HTBOTTOMRIGHT = 17
+
+        edge_map = {
+            'top': HTTOP,
+            'bottom': HTBOTTOM,
+            'left': HTLEFT,
+            'right': HTRIGHT,
+            'top-left': HTTOPLEFT,
+            'top-right': HTTOPRIGHT,
+            'bottom-left': HTBOTTOMLEFT,
+            'bottom-right': HTBOTTOMRIGHT,
+        }
+
+        if edge not in edge_map:
+            return
+
+        hwnd = self._window.gui.hwnd
+        user32 = ctypes.windll.user32
+        
+        # To start a resize/move, we need to release mouse capture
+        user32.ReleaseCapture()
+        
+        # Then send a "non-client left mouse button down" message to the window,
+        # specifying which edge/corner is being "grabbed".
+        user32.SendMessageW(hwnd, WM_NCLBUTTONDOWN, edge_map[edge], 0)
+
+
     def open_log_file_with_notepad(self):
         subprocess.run(["notepad.exe", LOG_FILENAME], check=True)
+
     def open_file_path(self, path):
         if not os.path.exists(path):
             logger.error(f"Error: Cannot open file, path does not exist: {path}")
@@ -276,6 +345,7 @@ class Api:
             elif sys.platform == "darwin": subprocess.run(["open", path])
             else: subprocess.run(["xdg-open", path])
         except Exception as e: logger.error(f"Failed to open file: {e}")
+
     def check_for_updates(self):
         try:
             from updater import check_for_updates
@@ -554,7 +624,16 @@ if __name__ == '__main__':
     if not headless_mode_successful:
         print("Launching GUI mode...")
         api_instance = Api()
-        window = webview.create_window('VCF Processor', app, js_api=api_instance, width=800, height=750, frameless=True, resizable=True, min_size=(600, 500))
+        window = webview.create_window(
+            'VCF Processor',
+            app,
+            js_api=api_instance,
+            width=api_instance.initial_width,
+            height=api_instance.initial_height,
+            frameless=True,
+            resizable=True,
+            min_size=(600, 500)
+        )
         api_instance.set_window(window)
         
         def run_flask():

@@ -5,56 +5,87 @@
     <title>{{ window_title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
+        html {
+            font-size: 16px;
+        }
+
         .container { height: 100%; display: flex; flex-direction: column; }
-        #main-content-area { flex-grow: 1; padding-right: 15px; }
-        #duplicate-selection { padding: 20px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; }
+        #main-content-area { flex-grow: 1; padding-right: 0.9375rem; /* 15px */ }
+        #duplicate-selection { padding: 1.25rem; /* 20px */ border: 1px solid #ccc; border-radius: 0.5rem; /* 8px */ margin-top: 1.25rem; /* 20px */ }
         #duplicates-list {
-            max-height: 200px;
+            max-height: 12.5rem; /* 200px */
             overflow-y: auto;
             flex-grow: 1;
-            margin-bottom: 15px;
+            margin-bottom: 0.9375rem; /* 15px */
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 0.625rem; /* 10px */
             min-width: 0;
             --fade-amount: 8%; -webkit-mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent); mask-image: linear-gradient(to bottom, transparent, black var(--fade-amount), black calc(100% - var(--fade-amount)), transparent);
         }
         .button-container { cursor: pointer; }
-        .config-gear { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--gold-color); font-size: 20px; cursor: pointer; z-index: 1000; }
-        
-        /* Flash animations */
+        .config-gear { position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--gold-color); font-size: 1.25rem; /* 20px */ cursor: pointer; z-index: 1000; }
+
         @keyframes successFlash {
             0% { background-color: transparent; }
             50% { background-color: rgba(0, 255, 0, 0.3); }
             100% { background-color: transparent; }
         }
-        
+
         @keyframes errorShake {
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
-        
-        .success-flash {
-            animation: successFlash 0.8s ease-in-out;
-        }
-        
-        .error-shake {
-            animation: errorShake 0.6s ease-in-out;
-        }
-        .duplicate-item { display: flex; align-items: center; padding: 5px; border-bottom: 1px solid #eee; }
-        #title-manager { margin-top: 20px; }
-        #filtered-titles-list { list-style: none; padding: 0; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 10px; }
-        #filtered-titles-list li { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border-bottom: 1px solid #eee; }
+
+        .success-flash { animation: successFlash 0.8s ease-in-out; }
+        .error-shake { animation: errorShake 0.6s ease-in-out; }
+        .duplicate-item { display: flex; align-items: center; padding: 0.3125rem; /* 5px */ border-bottom: 1px solid #eee; }
+        #title-manager { margin-top: 1.25rem; /* 20px */ }
+        #filtered-titles-list { list-style: none; padding: 0; max-height: 9.375rem; /* 150px */ overflow-y: auto; border: 1px solid #ddd; margin-bottom: 0.625rem; /* 10px */ }
+        #filtered-titles-list li { display: flex; justify-content: space-between; align-items: center; padding: 0.3125rem 0.5rem; /* 5px 8px */ border-bottom: 1px solid #eee; }
         .delete-title-btn { cursor: pointer; color: red; font-weight: bold; border: none; background: none; font-size: 1.2em; }
-        
-        /* <<< NOVO >>> Estilos para o seletor de modo */
-        .input-mode-selector { display: flex; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
-        .mode-btn { background: none; border: none; color: var(--text-color); padding: 10px 15px; cursor: pointer; font-size: 1em; border-bottom: 2px solid transparent; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; }
+
+        .input-mode-selector { display: flex; margin-bottom: 0.9375rem; /* 15px */ border-bottom: 1px solid var(--border-color); }
+        .mode-btn { background: none; border: none; color: var(--text-color); padding: 0.625rem 0.9375rem; /* 10px 15px */ cursor: pointer; font-size: 1rem; /* 16px */ border-bottom: 2px solid transparent; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; }
         .mode-btn.active { color: var(--2-color); border-bottom-color: var(--2-color); font-weight: bold; }
-        #text-content-area { width: 100%; min-height: 150px; margin-bottom: 10px; resize: vertical; }
+        #text-content-area { width: 100%; min-height: 9.375rem; /* 150px */ margin-bottom: 0.625rem; /* 10px */ resize: vertical; }
+
+        .gpu-accelerate {
+            will-change: text-shadow, box-shadow;
+            transform: translateZ(0);
+        }
+        .main-wrapper {
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* <<< NOVO >>> Styles for frameless window resize handles */
+        .resize-handle {
+            position: fixed;
+            z-index: 9999;
+        }
+        .resize-handle.top { top: 0; left: 5px; right: 5px; height: 5px; cursor: ns-resize; }
+        .resize-handle.bottom { bottom: 0; left: 5px; right: 5px; height: 5px; cursor: ns-resize; }
+        .resize-handle.left { top: 5px; bottom: 5px; left: 0; width: 5px; cursor: ew-resize; }
+        .resize-handle.right { top: 5px; bottom: 5px; right: 0; width: 5px; cursor: ew-resize; }
+        .resize-handle.top-left { top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+        .resize-handle.top-right { top: 0; right: 0; width: 10px; height: 10px; cursor: nesw-resize; }
+        .resize-handle.bottom-left { bottom: 0; left: 0; width: 10px; height: 10px; cursor: nesw-resize; }
+        .resize-handle.bottom-right { bottom: 0; right: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+
     </style>
 </head>
 <body>
+    <!-- <<< NOVO >>> Resize handles for the frameless window -->
+    <div class="resize-handle top" data-edge="top"></div>
+    <div class="resize-handle bottom" data-edge="bottom"></div>
+    <div class="resize-handle left" data-edge="left"></div>
+    <div class="resize-handle right" data-edge="right"></div>
+    <div class="resize-handle top-left" data-edge="top-left"></div>
+    <div class="resize-handle top-right" data-edge="top-right"></div>
+    <div class="resize-handle bottom-left" data-edge="bottom-left"></div>
+    <div class="resize-handle bottom-right" data-edge="bottom-right"></div>
+
     <div class="titlebar" id="titlebar">
         <span class="titlebar-text"></span>
         <div class="window-controls">
@@ -65,19 +96,16 @@
     <div class="main-wrapper">
         <button class="config-gear" id="config-gear-btn" title="Configurações"></button>
         <div class="container" id="vcf-container">
-        <h1>{{ window_title }}</h1>
-        <div id="duplicate-selection-1" style="display: none; color: var(--2-color); font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Estes contatos já estão no registro. Selecione quais você deseja reprocessar.</div>
+            <h1>{{ window_title }}</h1>
+            <div id="duplicate-selection-1" style="display: none; color: var(--2-color); font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Estes contatos já estão no registro. Selecione quais você deseja reprocessar.</div>
 
             <div id="main-content-area">
-                <!-- <<< NOVO >>> Seletor de modo de entrada -->
                 <div class="input-mode-selector" id="input-mode-selector">
                     <button id="mode-file-btn" class="mode-btn">Processar Arquivo VCF</button>
                     <button id="mode-text-btn" class="mode-btn active">Processar Lista de Texto</button>
                 </div>
 
-                <!-- <<< ALTERADO >>> Seção de formulário inicial agora dividida -->
                 <div id="initial-form">
-                    <!-- Seção para entrada de arquivo -->
                     <div id="file-input-section" style="display: none;">
                         <div class="input-field">
                             <label for="vcf-path">Arquivo VCF:</label>
@@ -88,7 +116,6 @@
                         </div>
                         <div class="button-container"><button type="button" id="start-btn" class="button">Processar VCF</button></div>
                     </div>
-                    <!-- <<< NOVO >>> Seção para entrada de texto -->
                     <div id="text-input-section">
                         <label for="text-content-area">Cole a lista de contatos aqui:</label>
                         <textarea id="text-content-area" class="input-style" placeholder="✅ Nome +55...&#10;Name: Outro Nome..."></textarea>
@@ -97,69 +124,64 @@
                 </div>
 
                 <div id="duplicate-selection-2" style="display: none;">
-                        <div style="display: flex; gap: 15px;">
-                            <form id="duplicates-form" style="flex: 1;">
-                                <input type="text" id="search-duplicates-input" placeholder="Buscar contatos..." class="input-style" style="margin-bottom: 10px;">
-                                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                                    <input type="checkbox" id="select-all-checkbox" style="margin-right: 8px;">
-                                    <label for="select-all-checkbox">Selecionar todos</label>
-                                </div>
-                                <div id="duplicates-list"></div>
-                            </form>
-                            <div class="button-container" style="flex-shrink: 0; width: 110px;">
-                                <button id="submit-button" class="button" style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.9em;">Processar</button>
+                    <div style="display: flex; gap: 0.9375rem;">
+                        <form id="duplicates-form" style="flex: 1;">
+                            <input type="text" id="search-duplicates-input" placeholder="Buscar contatos..." class="input-style" style="margin-bottom: 0.625rem;">
+                            <div style="display: flex; align-items: center; margin-bottom: 0.625rem;">
+                                <input type="checkbox" id="select-all-checkbox" style="margin-right: 0.5rem;">
+                                <label for="select-all-checkbox">Selecionar todos</label>
                             </div>
+                            <div id="duplicates-list"></div>
+                        </form>
+                        <div class="button-container" style="flex-shrink: 0; width: 6.875rem; /* 110px */">
+                            <button id="submit-button" class="button" style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.9em;">Processar</button>
                         </div>
                     </div>
-
+                </div>
             </div>
-            <div id="log-area" style="display: none; height: 90px;"></div>
+            <div id="log-area" style="display: none; height: 5.625rem; /* 90px */"></div>
+        </div>
 
-
-</div>
-<div id="advanced-panel">
-    <div id="panel-tab">
-    <img src="static/wheel.svg" alt="Settings">
-</div>
-
-
-    <div id="advanced-panel-content" class="advanced-panel">
-        <h3 class="h3">Configurações</h3>
-            <div id="light-mode-toggle">
-                <label>
-                    <input type="checkbox" id="lightModeSwitch">
-                    <span class="slider"></span>
-                </label>
-                <span style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; text-align: right;">Efeitos de Luz</span>
+        <div id="advanced-panel">
+            <div id="panel-tab">
+                <img src="static/wheel.svg" alt="Settings">
             </div>
-
-        <div id="title-manager">
-            <h4 class="h4">Títulos Filtrados</h4>
-            <p style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Palavras nesta lista serão removidas dos nomes.</p>
-            <input type="text" id="search-titles-input" placeholder="Buscar títulos..." class="input-style-adv" style="margin-bottom: 10px;">
-            <ul id="filtered-titles-list" style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;"></ul>
-            <div class="input-field-adv">
-        <textarea id="new-title-input" placeholder="Adicionar títulos (separados por vírgula ou nova linha)..." class="input-style-adv" rows="3" autofocus></textarea>
-        <div class="button-container-adv"><button type="button" id="add-title-btn" class="button-adv">+</button></div>
+            <div id="advanced-panel-content" class="advanced-panel">
+                <h3 class="h3">Configurações</h3>
+                <div id="light-mode-toggle">
+                    <label>
+                        <input type="checkbox" id="lightModeSwitch">
+                        <span class="slider"></span>
+                    </label>
+                    <span style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; text-align: right;">Efeitos de Luz</span>
+                </div>
+                <div id="title-manager">
+                    <h4 class="h4">Títulos Filtrados</h4>
+                    <p style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Palavras nesta lista serão removidas dos nomes.</p>
+                    <input type="text" id="search-titles-input" placeholder="Buscar títulos..." class="input-style-adv" style="margin-bottom: 0.625rem;">
+                    <ul id="filtered-titles-list" style="color: var(--gold-color); font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;"></ul>
+                    <div class="input-field-adv">
+                        <textarea id="new-title-input" placeholder="Adicionar títulos (separados por vírgula ou nova linha)..." class="input-style-adv" rows="3" autofocus></textarea>
+                        <div class="button-container-adv"><button type="button" id="add-title-btn" class="button-adv">+</button></div>
+                    </div>
+                </div>
+                <hr>
+                <div id="log-manager" style="margin-top: 1.25rem;">
+                    <h4 class="h4">Lista de Números Processados</h4>
+                    <div id="view-log-file" class="button-container-adv">
+                        <button type="button" id="view-log-btn" class="button-adv">Ver Lista</button>
+                    </div>
+                </div>
+                <hr>
+                <div id="update-manager" style="margin-top: 1.25rem;">
+                    <h4 class="h4">Atualizações</h4>
+                    <div class="button-container-adv">
+                        <button type="button" id="check-updates-btn" class="button-adv">Verificar Atualizações</button>
+                    </div>
+                    <div id="update-status" style="margin-top: 0.625rem; color: var(--gold-color); font-size: 0.9em;"></div>
+                </div>
             </div>
         </div>
-        <hr>
-        <div id="log-manager" style="margin-top: 20px;">
-            <h4 class="h4">Lista de Números Processados</h4>
-            <div id="view-log-file" class="button-container-adv">
-                <button type="button" id="view-log-btn" class="button-adv">Ver Lista</button>
-            </div>
-        </div>
-        <hr>
-        <div id="update-manager" style="margin-top: 20px;">
-            <h4 class="h4">Atualizações</h4>
-            <div class="button-container-adv">
-                <button type="button" id="check-updates-btn" class="button-adv">Verificar Atualizações</button>
-            </div>
-            <div id="update-status" style="margin-top: 10px; color: var(--gold-color); font-size: 0.9em;"></div>
-        </div>
-    </div>
-</div>
     </div>
 
 <script>
@@ -188,6 +210,7 @@
     let currentLightY = window.innerHeight / 2;
     let targetLightX = currentLightX;
     let targetLightY = currentLightY;
+    let elementsToAnimate = [];
 
     // On change, save preference
     document.getElementById('lightModeSwitch').addEventListener('change', () => {
@@ -200,6 +223,11 @@
         });
     });
 
+    function setupAnimatedElements() {
+        elementsToAnimate.forEach(el => el.classList.remove('gpu-accelerate'));
+        elementsToAnimate = Array.from(document.querySelectorAll('.input-style, .advanced-panel, h1, h3, h4, label'));
+        elementsToAnimate.forEach(el => el.classList.add('gpu-accelerate'));
+    }
 
 
     document.addEventListener('mousemove', (e) => {
@@ -218,18 +246,18 @@
             return;
         }
         lastUpdateTime = timestamp;
-        
+
         // Smooth interpolation (lerp) for stability
         const lerp = 0.1;
         const prevX = currentLightX;
         const prevY = currentLightY;
         currentLightX += (targetLightX - currentLightX) * lerp;
         currentLightY += (targetLightY - currentLightY) * lerp;
-        
+
         // Only update if movement is significant (>1px)
         const deltaX = Math.abs(currentLightX - prevX);
         const deltaY = Math.abs(currentLightY - prevY);
-        
+
         if (deltaX > 1 || deltaY > 1) {
             let light = document.querySelector('.light');
             if (!light) {
@@ -237,13 +265,11 @@
                 light.className = 'light';
                 document.body.appendChild(light);
             }
-            
+
             light.style.left = `${currentLightX}px`;
             light.style.top = `${currentLightY}px`;
-            
-            // Only update shadows for visible elements
-            const visibleElements = document.querySelectorAll('.input-style, .advanced-panel, h1, h3, h4, label');
-            visibleElements.forEach(el => {
+
+            elementsToAnimate.forEach(el => {
                 const rect = el.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
@@ -258,7 +284,7 @@
                 }
             });
         }
-        
+
         requestAnimationFrame(updateShadows);
     }
 
@@ -302,6 +328,17 @@
     const closeBtn = document.getElementById('close-btn');
     const minimizeBtn = document.getElementById('minimize-btn');
     const titlebar = document.getElementById('titlebar');
+
+    // --- Zoom Functionality ---
+    let currentZoomLevel = 100;
+    const ZOOM_STEP = 10;
+    const MIN_ZOOM = 50;
+    const MAX_ZOOM = 200;
+
+    function applyZoom() {
+        document.documentElement.style.fontSize = `${currentZoomLevel}%`;
+        localStorage.setItem('appZoomLevel', currentZoomLevel);
+    }
 
 
     // --- State Management ---
@@ -351,7 +388,7 @@
             document.body.classList.remove('success-flash');
         }, 800);
     }
-    
+
     function showErrorShake() {
         document.body.classList.add('error-shake');
         setTimeout(() => {
@@ -400,7 +437,7 @@
     function showDuplicateSelector(duplicates) {
         setState({ duplicates: duplicates });
         logMessage(`Encontradas ${duplicates.length} duplicatas. Por favor, faça sua seleção.`);
-        
+
         // No need for separate optimization - handled in render function
     }
 
@@ -504,12 +541,12 @@
         // Populate Duplicates List with search filter and virtual scrolling
         duplicatesList.innerHTML = ''; // Clear existing
         const duplicateSearchTerm = searchDuplicatesInput ? searchDuplicatesInput.value.toLowerCase() : '';
-        const filteredDuplicates = duplicateSearchTerm ? 
-            state.duplicates.filter(contact => 
-                contact.original_name.toLowerCase().includes(duplicateSearchTerm) || 
+        const filteredDuplicates = duplicateSearchTerm ?
+            state.duplicates.filter(contact =>
+                contact.original_name.toLowerCase().includes(duplicateSearchTerm) ||
                 contact.cleaned_number.includes(duplicateSearchTerm)
             ) : state.duplicates;
-        
+
         if (filteredDuplicates.length > 0) {
             if (state.duplicates.length > 1000) {
                 // Virtual scrolling for very large lists
@@ -517,19 +554,19 @@
                 const containerHeight = 400;
                 const visibleItems = Math.ceil(containerHeight / itemHeight);
                 const totalHeight = state.duplicates.length * itemHeight;
-                
+
                 duplicatesList.style.height = `${containerHeight}px`;
                 duplicatesList.style.overflowY = 'auto';
                 duplicatesList.innerHTML = `<div style="height: ${totalHeight}px; position: relative;"></div>`;
-                
+
                 const container = duplicatesList.firstChild;
                 let startIndex = 0;
-                
+
                 function renderVisibleItems() {
                     const scrollTop = duplicatesList.scrollTop;
                     startIndex = Math.floor(scrollTop / itemHeight);
                     const endIndex = Math.min(startIndex + visibleItems + 5, state.duplicates.length);
-                    
+
                     container.innerHTML = '';
                     for (let i = startIndex; i < endIndex; i++) {
                         const contact = state.duplicates[i];
@@ -544,7 +581,7 @@
                         container.appendChild(div);
                     }
                 }
-                
+
                 duplicatesList.addEventListener('scroll', renderVisibleItems);
                 renderVisibleItems();
             } else {
@@ -563,10 +600,10 @@
         // Populate Filtered Titles List with search filter
         titlesList.innerHTML = ''; // Clear existing
         const titleSearchTerm = searchTitlesInput ? searchTitlesInput.value.toLowerCase() : '';
-        const filteredTitles = titleSearchTerm ? 
-            state.filteredTitles.filter(title => title.toLowerCase().includes(titleSearchTerm)) : 
+        const filteredTitles = titleSearchTerm ?
+            state.filteredTitles.filter(title => title.toLowerCase().includes(titleSearchTerm)) :
             state.filteredTitles;
-        
+
         if (filteredTitles.length > 0) {
             filteredTitles.forEach(title => {
                 const li = document.createElement('li');
@@ -593,6 +630,13 @@
     document.addEventListener('DOMContentLoaded', () => {
         // Attach all event listeners once the DOM is ready
 
+        // Load and apply saved zoom level
+        const savedZoom = localStorage.getItem('appZoomLevel');
+        if (savedZoom) {
+            currentZoomLevel = parseInt(savedZoom, 10);
+        }
+        applyZoom();
+
         fetch('/get_light_mode')
             .then(response => response.json())
             .then(data => {
@@ -602,6 +646,7 @@
             });
 
         fetchAndDisplayTitles();
+        setupAnimatedElements();
         // Initial render call - this will set the initial state based on Flask template values
         render(state);
 
@@ -626,7 +671,6 @@
             }
         });
 
-        // <<< NOVO >>> Lógica para alternar entre os modos de entrada
         modeFileBtn.addEventListener('click', () => {
             modeFileBtn.classList.add('active');
             modeTextBtn.classList.remove('active');
@@ -671,7 +715,7 @@
                 const newTitles = input.split(/[\n,]+/)
                     .map(title => title.trim())
                     .filter(title => title && !state.filteredTitles.includes(title));
-                
+
                 if (newTitles.length > 0) {
                     setState({ filteredTitles: [...state.filteredTitles, ...newTitles] });
                     newTitleInput.value = '';
@@ -688,7 +732,7 @@
                     const newTitles = input.split(/[\n,]+/)
                         .map(title => title.trim())
                         .filter(title => title && !state.filteredTitles.includes(title));
-                    
+
                     if (newTitles.length > 0) {
                         setState({ filteredTitles: [...state.filteredTitles, ...newTitles] });
                         newTitleInput.value = '';
@@ -715,7 +759,7 @@
         duplicatesList.addEventListener('selectstart', (e) => {
             if (isDragging) e.preventDefault();
         });
-        
+
         duplicatesList.addEventListener('wheel', (e) => {
             e.stopPropagation();
         });
@@ -769,11 +813,11 @@
                 const now = Date.now();
                 if (now - lastDragTime < 16) return; // Throttle to 60fps
                 lastDragTime = now;
-                
+
                 dragStarted = true;
                 const rect = duplicatesList.getBoundingClientRect();
                 const scrollZone = 50;
-                
+
                 // Auto-scroll and select when near edges or outside
                 if ((e.clientY < rect.top + scrollZone || e.clientY < rect.top) && duplicatesList.scrollTop > 0) {
                     duplicatesList.scrollTop -= 5;
@@ -801,7 +845,7 @@
                         }
                     }, 5);
                 }
-                
+
                 // Select item under mouse
                 if (duplicatesList.contains(e.target)) {
                     const duplicateItem = e.target.closest('.duplicate-item');
@@ -928,11 +972,11 @@
             checkUpdatesBtn.disabled = true;
             checkUpdatesBtn.textContent = 'Verificando...';
             updateStatus.textContent = '';
-            
+
             try {
                 const response = await fetch('/check_updates');
                 const data = await response.json();
-                
+
                 if (data.update_available) {
                     updateStatus.innerHTML = `Nova versão ${data.version} disponível!<br><a href="#" onclick="window.pywebview.api.open_file_path('${data.download_url}')">Baixar Atualização</a>`;
                 } else {
@@ -959,7 +1003,7 @@
         });
 
         configGearBtn.addEventListener('click', (e) => { e.preventDefault(); setState({ showAdvanced: !state.showAdvanced }); }); // Toggle advanced state
-        
+
         // Panel tab click handler
         const panelTab = document.getElementById('panel-tab');
         panelTab.addEventListener('click', (e) => { e.preventDefault(); setState({ showAdvanced: !state.showAdvanced }); });
@@ -1005,6 +1049,50 @@
                 setState({ showAdvanced: false }); // Update state
             }
         });
+
+        // <<< ALTERADO >>> Event listener for zoom and window resize controls
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                let handled = false;
+                switch (e.key) {
+                    case '=':
+                    case '+':
+                        if (currentZoomLevel < MAX_ZOOM) {
+                            currentZoomLevel += ZOOM_STEP;
+                            window.pywebview.api.resize_window(80, 60); // Resize window up
+                        }
+                        handled = true;
+                        break;
+                    case '-':
+                        if (currentZoomLevel > MIN_ZOOM) {
+                            currentZoomLevel -= ZOOM_STEP;
+                            window.pywebview.api.resize_window(-80, -60); // Resize window down
+                        }
+                        handled = true;
+                        break;
+                    case '0':
+                        currentZoomLevel = 100;
+                        window.pywebview.api.reset_window_size(); // Reset window to default
+                        handled = true;
+                        break;
+                }
+
+                if (handled) {
+                    e.preventDefault();
+                    applyZoom();
+                }
+            }
+        });
+
+        // <<< NOVO >>> Event listeners for mouse-drag resizing
+        document.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const edge = handle.getAttribute('data-edge');
+                window.pywebview.api.start_window_resize(edge);
+            });
+        });
+
 
         // Corrected Auto-Start Logic
         const initialDuplicatesData = JSON.parse('{{ initial_duplicates | safe }}');
