@@ -172,20 +172,39 @@ class VCFProcessor:
             logging.error(f"Critical error in VCF extraction: {e}", exc_info=True)
             return []
 
+    # <<< ALTERADO >>> Este método agora processa ambos os formatos em uma única passagem.
     def _extract_contacts_from_text(self, text_content):
         contacts = []
-        logging.info("Starting contact data extraction from raw text.")
-        padrao_1 = re.compile(r"✅\s*(.*?)\s*(\+\d+)\s*foi adicionado com sucesso\s*✅")
-        matches_1 = padrao_1.findall(text_content)
-        for nome, numero in matches_1:
-            nome_limpo = nome.replace('*', '').strip()
-            contacts.append({'name': nome_limpo, 'number': numero})
-        padrao_2 = re.compile(r"Name:\s*(.*?)\s*Number \(1\):\s*(.*)")
-        matches_2 = padrao_2.findall(text_content)
-        for nome, numero_bruto in matches_2:
-            numero_limpo = '+' + ''.join(filter(str.isdigit, numero_bruto))
-            contacts.append({'name': nome.strip(), 'number': numero_limpo})
-        logging.info(f"Finished text extraction. Found {len(contacts)} potential contacts.")
+        logging.info("Starting combined contact data extraction from raw text.")
+
+        # Padrão para "✅ Miguel +55..." com grupos nomeados para clareza
+        pattern1 = r"✅\s*(?P<name1>.*?)\s*(?P<number1>\+\d+)\s*foi adicionado com sucesso\s*✅"
+        
+        # Padrão para "Name: Rogério..." com grupos nomeados
+        pattern2 = r"Name:\s*(?P<name2>.*?)\s*Number \(1\):\s*(?P<number2>.*)"
+
+        # Combina os dois padrões com um operador OR (|)
+        combined_pattern = re.compile(f"({pattern1})|({pattern2})")
+
+        # Usa finditer para obter objetos de correspondência para cada ocorrência no texto
+        for match in combined_pattern.finditer(text_content):
+            # Verifica qual grupo de padrões correspondeu
+            if match.group('name1') is not None:
+                # É o primeiro formato
+                name = match.group('name1').replace('*', '').strip()
+                number = match.group('number1').strip()
+                if name and number:
+                    contacts.append({'name': name, 'number': number})
+            elif match.group('name2') is not None:
+                # É o segundo formato
+                name = match.group('name2').strip()
+                raw_number = match.group('number2').strip()
+                if name and raw_number:
+                    # Limpa o número exatamente como o código antigo fazia
+                    clean_number = '+' + ''.join(filter(str.isdigit, raw_number))
+                    contacts.append({'name': name, 'number': clean_number})
+
+        logging.info(f"Finished combined text extraction. Found {len(contacts)} potential contacts.")
         return contacts
 
     def _clean_name(self, name):

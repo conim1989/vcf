@@ -9,10 +9,8 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = False
 import time
 
-# Import for Windows API interaction for resizing frameless window
+# This import is still good practice to encourage the correct backend
 if sys.platform == 'win32':
-    import ctypes
-    from ctypes import wintypes
     import webview.platforms.edgechromium
 
 
@@ -258,7 +256,6 @@ def on_window_closed():
 class Api:
     def __init__(self):
         self._window = None
-        # <<< NOVO >>> Store initial size for reset
         self.initial_width = 800
         self.initial_height = 750
 
@@ -278,59 +275,26 @@ class Api:
     def set_window_position(self, x, y):
         self._window.move(x, y)
 
-    # <<< NOVO >>> Function to resize window programmatically
+    # <<< NOVO >>> Funções para obter e definir o tamanho absoluto da janela para o JS.
+    def get_window_size(self):
+        if self._window:
+            return {'width': self._window.width, 'height': self._window.height}
+        return None
+
+    def set_window_size(self, width, height):
+        if self._window:
+            self._window.resize(int(width), int(height))
+
+    # <<< NOVO >>> Função de redimensionamento instantâneo para atalhos de teclado.
     def resize_window(self, width_delta, height_delta):
         if self._window:
             new_width = self._window.width + width_delta
             new_height = self._window.height + height_delta
             self._window.resize(new_width, new_height)
 
-    # <<< NOVO >>> Function to reset window to its original size
     def reset_window_size(self):
         if self._window:
             self._window.resize(self.initial_width, self.initial_height)
-
-    # <<< NOVO >>> Function to handle drag-to-resize on frameless window (Windows ONLY)
-    def start_window_resize(self, edge):
-        if sys.platform != 'win32' or not self._window:
-            return
-
-        # Win32 API constants for window resizing
-        WM_NCLBUTTONDOWN = 0x00A1
-        HTCAPTION = 2
-        HTTOP = 12
-        HTBOTTOM = 15
-        HTLEFT = 10
-        HTRIGHT = 11
-        HTTOPLEFT = 13
-        HTTOPRIGHT = 14
-        HTBOTTOMLEFT = 16
-        HTBOTTOMRIGHT = 17
-
-        edge_map = {
-            'top': HTTOP,
-            'bottom': HTBOTTOM,
-            'left': HTLEFT,
-            'right': HTRIGHT,
-            'top-left': HTTOPLEFT,
-            'top-right': HTTOPRIGHT,
-            'bottom-left': HTBOTTOMLEFT,
-            'bottom-right': HTBOTTOMRIGHT,
-        }
-
-        if edge not in edge_map:
-            return
-
-        hwnd = self._window.gui.hwnd
-        user32 = ctypes.windll.user32
-        
-        # To start a resize/move, we need to release mouse capture
-        user32.ReleaseCapture()
-        
-        # Then send a "non-client left mouse button down" message to the window,
-        # specifying which edge/corner is being "grabbed".
-        user32.SendMessageW(hwnd, WM_NCLBUTTONDOWN, edge_map[edge], 0)
-
 
     def open_log_file_with_notepad(self):
         subprocess.run(["notepad.exe", LOG_FILENAME], check=True)
